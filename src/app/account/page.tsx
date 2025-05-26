@@ -13,7 +13,7 @@ import { ConfirmDialog } from '@/components/sphere-of-control/ConfirmDeleteDialo
 import type { ActionItem, BucketType } from '@/types';
 import { getActionItemsStream } from '@/lib/firestoreService';
 import { useToast } from '@/hooks/use-toast';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PersonalityProfile {
   style: string;
@@ -145,24 +145,26 @@ export default function AccountPage() {
                       Calculating your style...
                     </div>
                   ) : (
-                    <>
-                      <p className="text-xl text-primary font-semibold">{personalityProfile.style}</p>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary">
-                            <Info className="h-4 w-4" />
-                            <span className="sr-only">Learn more about this style</span>
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto max-w-xs p-3 text-sm" side="top" align="center">
-                          {personalityProfile.explanation}
-                        </PopoverContent>
-                      </Popover>
-                    </>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <div className="flex items-center justify-center gap-2">
+                           <p className="text-xl text-primary font-semibold">{personalityProfile.style}</p>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary">
+                              <Info className="h-4 w-4" />
+                              <span className="sr-only">Learn more about this style</span>
+                            </Button>
+                          </TooltipTrigger>
+                        </div>
+                        <TooltipContent className="w-auto max-w-xs p-3 text-sm" side="top" align="center">
+                          <p>{personalityProfile.explanation}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6 pt-6"> {/* Added pt-6 to give space from header */}
+              <CardContent className="space-y-6 pt-6">
                 <div>
                   <h3 className="text-lg font-semibold mb-3 text-foreground">Account Details</h3>
                   <div className="space-y-3">
