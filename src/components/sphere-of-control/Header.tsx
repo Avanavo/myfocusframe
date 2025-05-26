@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogIn, User, LogOut, ShieldAlert, Loader2 } from 'lucide-react';
+import { User, LogOut, ShieldAlert, Loader2 } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDeleteDialog';
 
 export function Header() {
@@ -86,10 +86,8 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button onClick={signInWithGoogle} size="sm">
-                <LogIn className="mr-1 h-4 w-4" />
-                Sign in with Google
-              </Button>
+              // Sign in button removed from here
+              null
             )}
           </div>
         </div>
