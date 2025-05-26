@@ -8,11 +8,18 @@ import { Header } from '@/components/sphere-of-control/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Loader2, ShieldAlert } from 'lucide-react';
+import { Loader2, ShieldAlert, Info } from 'lucide-react';
 import { ConfirmDialog } from '@/components/sphere-of-control/ConfirmDeleteDialog';
 import type { ActionItem, BucketType } from '@/types';
 import { getActionItemsStream } from '@/lib/firestoreService';
 import { useToast } from '@/hooks/use-toast';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+interface PersonalityProfile {
+  style: string;
+  explanation: string;
+  icon?: React.ElementType; // Optional icon for future use
+}
 
 export default function AccountPage() {
   const { currentUser, loading: authLoading, signOutUser, forgetUserAccount } = useAuth();
@@ -62,9 +69,9 @@ export default function AccountPage() {
     setIsForgetMeDialogOpen(false);
   };
 
-  const personality = useMemo(() => {
-    if (isLoadingItems && authLoading) return "Calculating...";
-    if (!currentUser || actionItems.length === 0) return "Balanced Individual";
+  const personalityProfile: PersonalityProfile = useMemo(() => {
+    if (isLoadingItems && authLoading) return { style: "Calculating...", explanation: "Analyzing your action items..." };
+    if (!currentUser || actionItems.length === 0) return { style: "Balanced Individual", explanation: "Your items are quite evenly distributed, or you're just getting started! You show a flexible approach." };
 
     const counts: Record<BucketType, number> = {
       control: 0,
@@ -80,13 +87,14 @@ export default function AccountPage() {
 
     const maxCount = Math.max(counts.control, counts.influence, counts.acceptance);
 
-    if (maxCount === 0) return "Balanced Individual";
+    if (maxCount === 0) return { style: "Balanced Individual", explanation: "Your items are quite evenly distributed, or you're just getting started! You show a flexible approach." };
 
-    if (counts.control === maxCount) return "Control Freak";
-    if (counts.influence === maxCount) return "Influencer";
-    if (counts.acceptance === maxCount) return "Master of Zen";
+    // Determine dominant style
+    if (counts.control === maxCount) return { style: "Control Freak", explanation: "You tend to have the most items in your 'Control' bucket, focusing on what you can directly manage." };
+    if (counts.influence === maxCount) return { style: "Influencer", explanation: "Your focus seems to be on the 'Influence' bucket, aiming to affect outcomes indirectly." };
+    if (counts.acceptance === maxCount) return { style: "Master of Zen", explanation: "You often place items in the 'Acceptance' bucket, excelling at letting go of what you can't change." };
     
-    return "Balanced Individual";
+    return { style: "Balanced Individual", explanation: "Your items are quite evenly distributed, or you're just getting started! You show a flexible approach." };
   }, [actionItems, currentUser, isLoadingItems, authLoading]);
   
 
@@ -130,18 +138,31 @@ export default function AccountPage() {
                 <CardTitle className="text-2xl">{currentUser.displayName || 'User Account'}</CardTitle>
                 <CardDescription>{currentUser.email}</CardDescription>
                 
-                <div className="mt-4 mb-2"> {/* Adjusted margins */}
+                <div className="mt-4 mb-2 flex items-center justify-center gap-2">
                   {isLoadingItems ? (
                     <div className="flex items-center justify-center text-sm text-muted-foreground">
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Calculating your style...
                     </div>
                   ) : (
-                    <p className="text-xl text-primary font-semibold">{personality}</p>
+                    <>
+                      <p className="text-xl text-primary font-semibold">{personalityProfile.style}</p>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary">
+                            <Info className="h-4 w-4" />
+                            <span className="sr-only">Learn more about this style</span>
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto max-w-xs p-3 text-sm" side="top" align="center">
+                          {personalityProfile.explanation}
+                        </PopoverContent>
+                      </Popover>
+                    </>
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6 pt-6">
+              <CardContent className="space-y-6 pt-6"> {/* Added pt-6 to give space from header */}
                 <div>
                   <h3 className="text-lg font-semibold mb-3 text-foreground">Account Details</h3>
                   <div className="space-y-3">
