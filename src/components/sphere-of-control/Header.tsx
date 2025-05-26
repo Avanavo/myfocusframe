@@ -15,8 +15,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogIn, User, LogOut, Trash2, Loader2, ShieldAlert } from 'lucide-react';
-import { ConfirmDialog } from './ConfirmDeleteDialog'; // Updated to ConfirmDialog
+import { LogIn, User, LogOut, ShieldAlert, Loader2 } from 'lucide-react'; // Changed Trash2 to ShieldAlert
+import { ConfirmDialog } from './ConfirmDeleteDialog';
 
 export function Header() {
   const { currentUser, signInWithGoogle, signOutUser, forgetUserAccount, loading: authLoading } = useAuth();
@@ -32,8 +32,11 @@ export function Header() {
   };
 
   const confirmForgetMe = async () => {
-    await forgetUserAccount();
-    // AuthContext will handle user state changes, potentially redirecting or clearing UI
+    if (currentUser) {
+      await forgetUserAccount();
+      // AuthContext will handle user state changes, potentially redirecting or clearing UI
+    }
+    setIsForgetMeDialogOpen(false);
   };
 
   return (
@@ -73,11 +76,11 @@ export function Header() {
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={signOutUser}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>Sign out</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleForgetMe} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
-                    <ShieldAlert className="mr-2 h-4 w-4" /> {/* Changed icon for GDPR context */}
+                    <ShieldAlert className="mr-2 h-4 w-4" /> 
                     <span>Forget Me</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
