@@ -16,13 +16,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'My Focus Frames',
+  title: 'My Focus Frame',
   description: 'Manage your action items effectively.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "My Focus Frames",
+    title: "My Focus Frame",
   },
 };
 

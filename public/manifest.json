@@ -1,11 +1,8 @@
+
 {
-  "name": "My Focus Frames",
-  "short_name": "FocusFrames",
-  "description": "Manage your action items effectively using the Sphere of Control.",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#F0FDF4",
-  "theme_color": "#3F6212",
+  "name": "My Focus Frame",
+  "short_name": "MyFocusFrame",
+  "description": "Manage your action items effectively using the sphere of control.",
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -48,5 +45,10 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "theme_color": "#6A8A2B",
+  "background_color": "#F8F5EF",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
 }
