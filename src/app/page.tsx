@@ -1,13 +1,19 @@
+
 'use client';
 
-import { useState, useEffect, type DragEvent } from 'react';
+import { useState, useEffect, type DragEvent, useCallback } from 'react';
 import { Header } from '@/components/sphere-of-control/Header';
 import { BucketColumn } from '@/components/sphere-of-control/BucketColumn';
 import { VoiceInput } from '@/components/sphere-of-control/VoiceInput';
 import { AddActionItemModal } from '@/components/sphere-of-control/AddActionItemModal';
 import { ConfirmDeleteDialog } from '@/components/sphere-of-control/ConfirmDeleteDialog';
 import type { ActionItem, BucketType, ActionItemSuggestion } from '@/types';
-import { loadActionItems, saveActionItems } from '@/lib/localStorage';
+import { 
+  getActionItemsStream, 
+  addActionItem, 
+  updateActionItem, 
+  deleteActionItem 
+} from '@/lib/firestoreService';
 import { suggestRecategorization, type SuggestRecategorizationInput } from '@/ai/flows/suggest-recategorization';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
@@ -21,6 +27,7 @@ const BUCKET_TITLES: Record<BucketType, string> = {
 
 export default function SphereOfControlPage() {
   const [actionItems, setActionItems] = useState<ActionItem[]>([]);
+  const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ActionItem | null>(null);
@@ -30,31 +37,39 @@ export default function SphereOfControlPage() {
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
+
   const { toast } = useToast();
 
   useEffect(() => {
-    setIsClient(true); // Indicate client-side rendering is complete
-    setActionItems(loadActionItems());
-  }, []);
+    setIsClient(true);
+    setIsLoadingItems(true);
+    const unsubscribe = getActionItemsStream(
+      (items) => {
+        setActionItems(items);
+        setIsLoadingItems(false);
+      },
+      (error) => {
+        console.error("Failed to load items:", error);
+        toast({ title: 'Error Loading Items', description: 'Could not fetch items from Firestore.', variant: 'destructive' });
+        setIsLoadingItems(false);
+      }
+    );
+    return () => unsubscribe(); // Cleanup subscription on component unmount
+  }, [toast]);
 
-  useEffect(() => {
-    if (isClient) { // Only save to localStorage on client
-        saveActionItems(actionItems);
-    }
-  }, [actionItems, isClient]);
-
-  const getAiSuggestion = async (itemContent: string, currentBucket: BucketType, itemId: string) => {
+  const getAiSuggestion = useCallback(async (itemContent: string, currentBucket: BucketType, itemId: string) => {
     setIsLoadingAi(true);
     try {
       const input: SuggestRecategorizationInput = { actionItem: itemContent, currentBucket };
       const suggestionResult = await suggestRecategorization(input);
       
       if (suggestionResult.suggestedBucket && suggestionResult.reasoning) {
-        setActionItems(prevItems => prevItems.map(itm => 
-          itm.id === itemId 
-            ? { ...itm, suggestion: { suggestedBucket: suggestionResult.suggestedBucket as BucketType, reasoning: suggestionResult.reasoning! } } 
-            : itm
-        ));
+        const suggestion: ActionItemSuggestion = { 
+          suggestedBucket: suggestionResult.suggestedBucket as BucketType, 
+          reasoning: suggestionResult.reasoning! 
+        };
+        await updateActionItem(itemId, { suggestion });
+        // UI update will be handled by onSnapshot listener
         toast({ title: 'AI Suggestion', description: `AI has a suggestion for item: "${itemContent.substring(0,20)}..."`});
       }
     } catch (error) {
@@ -63,42 +78,35 @@ export default function SphereOfControlPage() {
     } finally {
       setIsLoadingAi(false);
     }
-  };
+  }, [toast]);
 
-  const handleAddItem = (content: string, bucket: BucketType, idToUpdate?: string) => {
-    if (idToUpdate) { // Editing existing item
-      setActionItems(prevItems => 
-        prevItems.map(item => 
-          item.id === idToUpdate ? { ...item, content, bucket, suggestion: null } : item
-        )
-      );
-      toast({ title: 'Item Updated', description: `"${content.substring(0,30)}..." updated.` });
-      getAiSuggestion(content, bucket, idToUpdate);
-    } else { // Adding new item
-      const newItem: ActionItem = {
-        id: Date.now().toString(), // Simple ID generation
-        content,
-        bucket,
-        createdAt: new Date().toISOString(),
-        suggestion: null,
-      };
-      setActionItems(prevItems => [...prevItems, newItem]);
-      toast({ title: 'Item Added', description: `"${content.substring(0,30)}..." added to ${bucket}.` });
-      getAiSuggestion(content, bucket, newItem.id);
+  const handleAddItem = async (content: string, bucket: BucketType, idToUpdate?: string) => {
+    try {
+      if (idToUpdate) { // Editing existing item
+        await updateActionItem(idToUpdate, { content, bucket, suggestion: null });
+        toast({ title: 'Item Updated', description: `"${content.substring(0,30)}..." updated.` });
+        getAiSuggestion(content, bucket, idToUpdate);
+      } else { // Adding new item
+        const newItemData = { content, bucket, suggestion: null };
+        const newId = await addActionItem(newItemData);
+        toast({ title: 'Item Added', description: `"${content.substring(0,30)}..." added to ${bucket}.` });
+        getAiSuggestion(content, bucket, newId);
+      }
+    } catch (error) {
+      console.error("Error saving item:", error);
+      toast({ title: 'Error Saving Item', description: 'Could not save item to Firestore.', variant: 'destructive' });
     }
     setItemToEdit(null);
   };
 
   const handleTranscriptionComplete = (text: string) => {
-    // Add transcribed text to 'influence' bucket by default, or open modal
-    // For simplicity, directly add to 'influence'
     handleAddItem(text, 'influence');
   };
 
   const handleDragStart = (e: DragEvent<HTMLDivElement>, itemId: string) => {
     setDraggedItemId(itemId);
     if (e.dataTransfer) {
-      e.dataTransfer.setData('text/plain', itemId); // Necessary for Firefox
+      e.dataTransfer.setData('text/plain', itemId);
       e.dataTransfer.effectAllowed = 'move';
     }
   };
@@ -110,20 +118,19 @@ export default function SphereOfControlPage() {
     }
   };
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>, targetBucket: BucketType) => {
+  const handleDrop = async (e: DragEvent<HTMLDivElement>, targetBucket: BucketType) => {
     e.preventDefault();
     if (!draggedItemId) return;
 
     const itemToMove = actionItems.find(item => item.id === draggedItemId);
     if (itemToMove && itemToMove.bucket !== targetBucket) {
-      setActionItems(prevItems =>
-        prevItems.map(item =>
-          item.id === draggedItemId ? { ...item, bucket: targetBucket, suggestion: null } : item
-        )
-      );
-      toast({ title: 'Item Moved', description: `Item moved to ${targetBucket}.` });
-      if (itemToMove) { // Check if itemToMove is defined
+      try {
+        await updateActionItem(draggedItemId, { bucket: targetBucket, suggestion: null });
+        toast({ title: 'Item Moved', description: `Item moved to ${targetBucket}.` });
         getAiSuggestion(itemToMove.content, targetBucket, itemToMove.id);
+      } catch (error) {
+        console.error("Error moving item:", error);
+        toast({ title: 'Error Moving Item', description: 'Could not update item in Firestore.', variant: 'destructive' });
       }
     }
     setDraggedItemId(null);
@@ -137,7 +144,7 @@ export default function SphereOfControlPage() {
   
   const openEditModal = (item: ActionItem) => {
     setItemToEdit(item);
-    setDefaultBucketForModal(item.bucket); // Not strictly needed as item.bucket is used
+    setDefaultBucketForModal(item.bucket);
     setIsModalOpen(true);
   };
 
@@ -146,39 +153,41 @@ export default function SphereOfControlPage() {
     setIsDeleteDialogOpen(true);
   };
 
-  const confirmDeleteItem = () => {
+  const confirmDeleteItem = async () => {
     if (itemToDeleteId) {
       const item = actionItems.find(it => it.id === itemToDeleteId);
-      setActionItems(prevItems => prevItems.filter(item => item.id !== itemToDeleteId));
-      toast({ title: 'Item Deleted', description: `"${item?.content.substring(0,30)}..." deleted.`, variant: 'destructive' });
+      try {
+        await deleteActionItem(itemToDeleteId);
+        toast({ title: 'Item Deleted', description: `"${item?.content.substring(0,30)}..." deleted.`, variant: 'destructive' });
+      } catch (error) {
+        console.error("Error deleting item:", error);
+        toast({ title: 'Error Deleting Item', description: 'Could not delete item from Firestore.', variant: 'destructive' });
+      }
       setItemToDeleteId(null);
     }
   };
   
-  const handleApplySuggestion = (itemId: string, newBucket: BucketType) => {
-    const itemToUpdate = actionItems.find(item => item.id === itemId);
-    if (itemToUpdate) {
-      setActionItems(prevItems =>
-        prevItems.map(item =>
-          item.id === itemId ? { ...item, bucket: newBucket, suggestion: null } : item
-        )
-      );
+  const handleApplySuggestion = async (itemId: string, newBucket: BucketType) => {
+    try {
+      await updateActionItem(itemId, { bucket: newBucket, suggestion: null });
       toast({ title: 'Suggestion Applied', description: `Item moved to ${newBucket}.`});
+    } catch (error) {
+      console.error("Error applying suggestion:", error);
+      toast({ title: 'Error Applying Suggestion', description: 'Could not update item.', variant: 'destructive' });
     }
   };
 
-  const handleDismissSuggestion = (itemId: string) => {
-     setActionItems(prevItems =>
-        prevItems.map(item =>
-          item.id === itemId ? { ...item, suggestion: null } : item
-        )
-      );
-    toast({ title: 'Suggestion Dismissed'});
+  const handleDismissSuggestion = async (itemId: string) => {
+    try {
+      await updateActionItem(itemId, { suggestion: null });
+      toast({ title: 'Suggestion Dismissed'});
+    } catch (error) {
+      console.error("Error dismissing suggestion:", error);
+      toast({ title: 'Error Dismissing Suggestion', description: 'Could not update item.', variant: 'destructive' });
+    }
   };
 
-
-  if (!isClient) {
-    // Render a loading state or null during SSR/SSG to avoid hydration mismatch with localStorage
+  if (!isClient || isLoadingItems) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
@@ -208,7 +217,7 @@ export default function SphereOfControlPage() {
               key={bucketType}
               bucketType={bucketType}
               title={BUCKET_TITLES[bucketType]}
-              items={actionItems.filter(item => item.bucket === bucketType).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())}
+              items={actionItems.filter(item => item.bucket === bucketType)} // Sorting is now handled by Firestore query
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onDragStartCard={handleDragStart}
