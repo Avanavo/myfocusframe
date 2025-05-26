@@ -2,10 +2,10 @@
 'use client';
 
 import { useState, useEffect, type DragEvent } from 'react';
-import { Header } from '@/components/sphere-of-control/Header';
-import { BucketColumn } from '@/components/sphere-of-control/BucketColumn';
-import { AddActionItemModal } from '@/components/sphere-of-control/AddActionItemModal';
-import { ConfirmDialog } from '@/components/sphere-of-control/ConfirmDeleteDialog';
+import { Header } from '@/components/focusframe/Header';
+import { BucketColumn } from '@/components/focusframe/BucketColumn';
+import { AddActionItemModal } from '@/components/focusframe/AddActionItemModal';
+import { ConfirmDialog } from '@/components/focusframe/ConfirmDialog';
 import type { ActionItem, BucketType } from '@/types';
 import { 
   getActionItemsStream, 

@@ -4,12 +4,12 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Header } from '@/components/sphere-of-control/Header';
+import { Header } from '@/components/focusframe/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Loader2, ShieldAlert, Info, X } from 'lucide-react';
-import { ConfirmDialog } from '@/components/sphere-of-control/ConfirmDeleteDialog';
+import { ConfirmDialog } from '@/components/focusframe/ConfirmDialog';
 import type { ActionItem, BucketType } from '@/types';
 import { getActionItemsStream } from '@/lib/firestoreService';
 import { useToast } from '@/hooks/use-toast';
