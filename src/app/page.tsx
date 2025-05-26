@@ -16,7 +16,9 @@ import {
 } from '@/lib/firestoreService';
 import { suggestRecategorization, type SuggestRecategorizationInput } from '@/ai/flows/suggest-recategorization';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, LogIn } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext'; 
+import { Button } from '@/components/ui/button';
 
 const BUCKET_TYPES: BucketType[] = ['control', 'influence', 'acceptance'];
 const BUCKET_TITLES: Record<BucketType, string> = {
@@ -26,6 +28,7 @@ const BUCKET_TITLES: Record<BucketType, string> = {
 };
 
 export default function SphereOfControlPage() {
+  const { currentUser, loading: authLoading, signInWithGoogle } = useAuth();
   const [actionItems, setActionItems] = useState<ActionItem[]>([]);
   const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
@@ -35,14 +38,21 @@ export default function SphereOfControlPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDeleteId, setItemToDeleteId] = useState<string | null>(null);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-
+  const [isClient, setIsClient] = useState(false); // Keep for now, may optimize later
 
   const { toast } = useToast();
 
   useEffect(() => {
-    setIsClient(true);
+    setIsClient(true); // Set client status once
+
+    if (!currentUser) {
+      setActionItems([]); // Clear items if user logs out or is not present
+      setIsLoadingItems(false);
+      return;
+    }
+
     setIsLoadingItems(true);
+    // In Phase 2, we will pass currentUser.uid to getActionItemsStream
     const unsubscribe = getActionItemsStream(
       (items) => {
         setActionItems(items);
@@ -54,10 +64,11 @@ export default function SphereOfControlPage() {
         setIsLoadingItems(false);
       }
     );
-    return () => unsubscribe(); // Cleanup subscription on component unmount
-  }, [toast]);
+    return () => unsubscribe();
+  }, [currentUser, toast]);
 
   const getAiSuggestion = useCallback(async (itemContent: string, currentBucket: BucketType, itemId: string) => {
+    if (!currentUser) return; // Guard against AI calls if not logged in
     setIsLoadingAi(true);
     try {
       const input: SuggestRecategorizationInput = { actionItem: itemContent, currentBucket };
@@ -69,7 +80,6 @@ export default function SphereOfControlPage() {
           reasoning: suggestionResult.reasoning! 
         };
         await updateActionItem(itemId, { suggestion });
-        // UI update will be handled by onSnapshot listener
         toast({ title: 'AI Suggestion', description: `AI has a suggestion for item: "${itemContent.substring(0,20)}..."`});
       }
     } catch (error) {
@@ -78,15 +88,20 @@ export default function SphereOfControlPage() {
     } finally {
       setIsLoadingAi(false);
     }
-  }, [toast]);
+  }, [currentUser, toast]); // Added currentUser dependency
 
   const handleAddItem = async (content: string, bucket: BucketType, idToUpdate?: string) => {
+    if (!currentUser) {
+      toast({ title: 'Not Signed In', description: 'You must be signed in to add items.', variant: 'destructive' });
+      return;
+    }
+    // In Phase 2, we will pass currentUser.uid to addActionItem/updateActionItem
     try {
-      if (idToUpdate) { // Editing existing item
+      if (idToUpdate) { 
         await updateActionItem(idToUpdate, { content, bucket, suggestion: null });
         toast({ title: 'Item Updated', description: `"${content.substring(0,30)}..." updated.` });
         getAiSuggestion(content, bucket, idToUpdate);
-      } else { // Adding new item
+      } else { 
         const newItemData = { content, bucket, suggestion: null };
         const newId = await addActionItem(newItemData);
         toast({ title: 'Item Added', description: `"${content.substring(0,30)}..." added to ${bucket}.` });
@@ -100,6 +115,10 @@ export default function SphereOfControlPage() {
   };
 
   const handleTranscriptionComplete = (text: string) => {
+    if (!currentUser) {
+       toast({ title: 'Not Signed In', description: 'Please sign in to add items via voice.', variant: 'destructive' });
+      return;
+    }
     handleAddItem(text, 'influence');
   };
 
@@ -120,7 +139,7 @@ export default function SphereOfControlPage() {
 
   const handleDrop = async (e: DragEvent<HTMLDivElement>, targetBucket: BucketType) => {
     e.preventDefault();
-    if (!draggedItemId) return;
+    if (!draggedItemId || !currentUser) return;
 
     const itemToMove = actionItems.find(item => item.id === draggedItemId);
     if (itemToMove && itemToMove.bucket !== targetBucket) {
@@ -137,24 +156,30 @@ export default function SphereOfControlPage() {
   };
 
   const openAddModal = (bucket: BucketType) => {
+    if (!currentUser) {
+       toast({ title: 'Not Signed In', description: 'Please sign in to add items.', variant: 'destructive' });
+      return;
+    }
     setItemToEdit(null);
     setDefaultBucketForModal(bucket);
     setIsModalOpen(true);
   };
   
   const openEditModal = (item: ActionItem) => {
+    if (!currentUser) return;
     setItemToEdit(item);
     setDefaultBucketForModal(item.bucket);
     setIsModalOpen(true);
   };
 
   const handleDeleteItem = (itemId: string) => {
+    if (!currentUser) return;
     setItemToDeleteId(itemId);
     setIsDeleteDialogOpen(true);
   };
 
   const confirmDeleteItem = async () => {
-    if (itemToDeleteId) {
+    if (itemToDeleteId && currentUser) {
       const item = actionItems.find(it => it.id === itemToDeleteId);
       try {
         await deleteActionItem(itemToDeleteId);
@@ -168,16 +193,18 @@ export default function SphereOfControlPage() {
   };
   
   const handleApplySuggestion = async (itemId: string, newBucket: BucketType) => {
+    if (!currentUser) return;
     try {
       await updateActionItem(itemId, { bucket: newBucket, suggestion: null });
       toast({ title: 'Suggestion Applied', description: `Item moved to ${newBucket}.`});
-    } catch (error) {
+    } catch (error) { // Added opening brace
       console.error("Error applying suggestion:", error);
       toast({ title: 'Error Applying Suggestion', description: 'Could not update item.', variant: 'destructive' });
     }
   };
 
   const handleDismissSuggestion = async (itemId: string) => {
+    if (!currentUser) return;
     try {
       await updateActionItem(itemId, { suggestion: null });
       toast({ title: 'Suggestion Dismissed'});
@@ -187,12 +214,42 @@ export default function SphereOfControlPage() {
     }
   };
 
-  if (!isClient || isLoadingItems) {
+  if (authLoading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-background">
+        <Header />
+        <main className="flex-grow container mx-auto px-4 py-6 flex flex-col items-center justify-center text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground">Authenticating...</p>
+        </main>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="flex flex-col min-h-screen bg-background">
+        <Header /> 
+        <main className="flex-grow container mx-auto px-4 py-6 flex flex-col items-center justify-center text-center">
+          <h2 className="text-2xl font-semibold mb-4 text-foreground">Welcome to Sphere of Control</h2>
+          <p className="mb-6 text-muted-foreground">Please sign in with Google to manage your action items.</p>
+          <Button onClick={signInWithGoogle} size="lg">
+            <LogIn className="mr-2 h-5 w-5" />
+            Sign in with Google
+          </Button>
+        </main>
+      </div>
+    );
+  }
+
+  // If authenticated and past initial client check / item loading:
+  if (!isClient || (isLoadingItems && actionItems.length === 0)) { // Show loader if client not ready or items loading for first time
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
         <main className="flex-grow container mx-auto px-4 py-6 flex items-center justify-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="ml-4 text-muted-foreground">Loading your items...</p>
         </main>
       </div>
     );
@@ -217,7 +274,7 @@ export default function SphereOfControlPage() {
               key={bucketType}
               bucketType={bucketType}
               title={BUCKET_TITLES[bucketType]}
-              items={actionItems.filter(item => item.bucket === bucketType)} // Sorting is now handled by Firestore query
+              items={actionItems.filter(item => item.bucket === bucketType)}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onDragStartCard={handleDragStart}
