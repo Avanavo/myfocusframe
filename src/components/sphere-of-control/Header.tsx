@@ -27,9 +27,8 @@ export function Header() {
                 <AvatarFallback>{currentUser.displayName?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
               </Avatar>
               <span className="text-sm text-muted-foreground hidden sm:inline">{currentUser.displayName}</span>
-              <Button variant="outline" size="sm" onClick={signOutUser}>
-                <LogOut className="mr-1 h-4 w-4" />
-                Sign Out
+              <Button variant="outline" size="icon" onClick={signOutUser} aria-label="Sign out" className="h-8 w-8">
+                <LogOut className="h-4 w-4" />
               </Button>
             </>
           ) : (
@@ -43,3 +42,4 @@ export function Header() {
     </header>
   );
 }
+
