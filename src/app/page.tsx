@@ -5,7 +5,7 @@ import { useState, useEffect, type DragEvent } from 'react';
 import { Header } from '@/components/sphere-of-control/Header';
 import { BucketColumn } from '@/components/sphere-of-control/BucketColumn';
 import { AddActionItemModal } from '@/components/sphere-of-control/AddActionItemModal';
-import { ConfirmDeleteDialog } from '@/components/sphere-of-control/ConfirmDeleteDialog';
+import { ConfirmDialog } from '@/components/sphere-of-control/ConfirmDeleteDialog'; // Changed import
 import type { ActionItem, BucketType } from '@/types';
 import { 
   getActionItemsStream, 
@@ -139,7 +139,7 @@ export default function SphereOfControlPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteItem = (itemId: string) => {
+  const handleDeleteRequest = (itemId: string) => { // Renamed from handleDeleteItem
     if (!currentUser?.uid) return;
     setItemToDeleteId(itemId);
     setIsDeleteDialogOpen(true);
@@ -150,7 +150,7 @@ export default function SphereOfControlPage() {
       const item = actionItems.find(it => it.id === itemToDeleteId);
       try {
         await deleteActionItem(currentUser.uid, itemToDeleteId);
-        toast({ title: 'Item Deleted', description: `"${item?.content.substring(0,30)}..." deleted.`, variant: 'destructive' });
+        toast({ title: 'Item Deleted', description: `"${item?.content.substring(0,30) || 'Item'}..." deleted.`, variant: 'destructive' });
       } catch (error) {
         console.error("Error deleting item:", error);
         toast({ title: 'Error Deleting Item', description: 'Could not delete item from Firestore.', variant: 'destructive' });
@@ -206,6 +206,9 @@ export default function SphereOfControlPage() {
     );
   }
 
+  const itemNameToDelete = itemToDeleteId ? actionItems.find(i => i.id === itemToDeleteId)?.content.substring(0,30) + "..." : "this item";
+
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
@@ -225,7 +228,7 @@ export default function SphereOfControlPage() {
                 onDragStartCard={handleDragStart}
                 onOpenAddModal={openAddModal}
                 onEditItem={openEditModal}
-                onDeleteItem={handleDeleteItem}
+                onDeleteItem={handleDeleteRequest} // Changed to handleDeleteRequest
                 isCollapsed={collapsedBuckets[bucketType]}
                 onToggleCollapse={toggleBucketCollapse}
               />
@@ -242,11 +245,14 @@ export default function SphereOfControlPage() {
         defaultBucket={defaultBucketForModal}
       />
 
-      <ConfirmDeleteDialog
+      <ConfirmDialog
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={confirmDeleteItem}
-        itemName={actionItems.find(i => i.id === itemToDeleteId)?.content.substring(0,30) + "..."}
+        title="Are you sure?"
+        description={`This action will permanently delete "${itemNameToDelete}". This cannot be undone.`}
+        confirmButtonText="Delete Item"
+        confirmButtonVariant="destructive"
       />
     </div>
   );

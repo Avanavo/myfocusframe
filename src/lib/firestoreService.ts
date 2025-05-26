@@ -14,6 +14,8 @@ import {
   type FieldValue,
   type CollectionReference,
   type DocumentData,
+  getDocs,
+  writeBatch,
 } from 'firebase/firestore';
 import type { ActionItem, BucketType } from '@/types';
 
@@ -30,7 +32,7 @@ interface ActionItemDocumentData {
 }
 
 // Type for data coming from Firestore, where createdAt might be a server Timestamp
-interface ActionItemFromFirestore extends Omit<ActionItem, 'createdAt' | 'id' | 'userId'> {
+interface ActionItemFromFirestore extends Omit<ActionItem, 'createdAt' | 'id'> {
   id?: string; // id is not part of the document data itself
   createdAt: Timestamp; // Firestore specific timestamp
   content: string;
@@ -44,7 +46,8 @@ export function getActionItemsStream(
   onError: (error: Error) => void
 ): () => void { // Returns an unsubscribe function
   if (!userId) {
-    onError(new Error("User ID is required to fetch action items."));
+    //onError(new Error("User ID is required to fetch action items.")); // Caller handles no user state
+    callback([]); // Return empty list if no user
     return () => {}; // Return a no-op unsubscribe function
   }
   const userActionItemsRef = getUserActionItemsCollectionRef(userId);
@@ -134,9 +137,33 @@ export async function deleteActionItem(userId: string, itemId: string): Promise<
   try {
     const itemDocRef = doc(db, 'users', userId, 'actionItems', itemId);
     await deleteDoc(itemDocRef);
-  } catch (error)
-{
+  } catch (error) {
     console.error("Error deleting action item: ", error);
+    throw error;
+  }
+}
+
+export async function deleteAllUserActionItems(userId: string): Promise<void> {
+  if (!userId) {
+    throw new Error("User ID is required to delete all action items.");
+  }
+  try {
+    const userActionItemsRef = getUserActionItemsCollectionRef(userId);
+    const q = query(userActionItemsRef);
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      return; // No items to delete
+    }
+
+    const batch = writeBatch(db);
+    querySnapshot.forEach((docSnapshot) => {
+      batch.delete(docSnapshot.ref);
+    });
+    await batch.commit();
+    console.log(`Successfully deleted all action items for user ${userId}`);
+  } catch (error) {
+    console.error(`Error deleting all action items for user ${userId}: `, error);
     throw error;
   }
 }
