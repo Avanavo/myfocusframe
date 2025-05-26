@@ -16,18 +16,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'FocusFrame',
+  title: 'My Focus Frame',
   description: 'Manage your action items effectively.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "FocusFrame",
+    title: "My Focus Frame",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: 'hsl(43, 33%, 94%)', // Corresponds to new --background for light mode
+  themeColor: 'hsl(101, 25%, 38%)', // Corresponds to new --background for light mode
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,

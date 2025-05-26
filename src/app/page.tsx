@@ -79,7 +79,7 @@ export default function SphereOfControlPage() {
         await updateActionItem(currentUser.uid, idToUpdate, { content, bucket });
         toast({ title: 'Item Updated', description: `"${content.substring(0,30)}..." updated.` });
       } else { 
-        const newItemData = { content, bucket, userId: currentUser.uid };
+        const newItemData = { content, bucket };
         await addActionItem(currentUser.uid, newItemData); 
         toast({ title: 'Item Added', description: `"${content.substring(0,30)}..." added to ${bucket}.` });
       }
@@ -183,7 +183,7 @@ export default function SphereOfControlPage() {
       <div className="flex flex-col min-h-screen bg-background">
         <Header /> 
         <main className="flex-grow container mx-auto px-4 py-6 flex flex-col items-center justify-center text-center">
-          <h2 className="text-2xl font-semibold mb-4 text-foreground">Welcome to FocusFrame</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-foreground">Welcome to My Focus Frame</h2>
           <p className="mb-6 text-muted-foreground">Please sign in with Google to manage your action items.</p>
           <Button onClick={signInWithGoogle} size="lg">
             <LogIn className="mr-2 h-5 w-5" />
