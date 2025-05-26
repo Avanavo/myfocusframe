@@ -1,3 +1,4 @@
+
 'use client';
 
 import type React from 'react';
@@ -18,8 +19,6 @@ interface BucketColumnProps {
   onOpenAddModal: (bucket: BucketType) => void;
   onEditItem: (item: ActionItem) => void;
   onDeleteItem: (itemId: string) => void;
-  onApplySuggestion: (itemId: string, newBucket: BucketType) => void;
-  onDismissSuggestion: (itemId: string) => void;
 }
 
 const BUCKET_ICONS: Record<BucketType, React.ElementType> = {
@@ -38,8 +37,6 @@ export function BucketColumn({
   onOpenAddModal,
   onEditItem,
   onDeleteItem,
-  onApplySuggestion,
-  onDismissSuggestion
 }: BucketColumnProps) {
   const IconComponent = BUCKET_ICONS[bucketType];
 
@@ -85,8 +82,6 @@ export function BucketColumn({
               onDragStart={onDragStartCard}
               onEdit={onEditItem}
               onDelete={onDeleteItem}
-              onApplySuggestion={onApplySuggestion}
-              onDismissSuggestion={onDismissSuggestion}
             />
           ))}
         </CardContent>
