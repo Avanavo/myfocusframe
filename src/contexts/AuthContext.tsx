@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
     
-    // Get Firebase config being used by the SDK for inclusion in error messages
     const appOptions = auth.app.options;
     const configuredApiKeyPartial = appOptions.apiKey ? appOptions.apiKey.substring(0,5) + '...' : 'NOT_CONFIGURED';
     const configuredAuthDomain = appOptions.authDomain || 'NOT_CONFIGURED';
@@ -43,11 +42,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       await signInWithPopup(auth, provider);
-      // User state will be updated by onAuthStateChanged
       toast({ title: 'Signed In', description: 'Successfully signed in with Google.' });
     } catch (error: any) {
-      // Log the full error object to console for developers
-      console.error("Error signing in with Google:", error);
+      console.error("Firebase Auth Error:", error); // Log the full error object
       
       let toastTitle = 'Sign In Error';
       let toastDescription = `An error occurred: ${error.message || 'Could not sign in with Google.'}`;
@@ -55,22 +52,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         toastTitle = `Sign In Error (${error.code})`;
       }
 
-      let toastDuration = 9000; // Default duration
+      let toastDuration = 9000;
 
       if (error.code === 'auth/unauthorized-domain') {
+        const currentHostname = window.location.hostname;
         toastTitle = 'Sign In Error: Unauthorized Domain';
-        toastDescription = `Your app (from '${window.location.hostname}') is trying to authenticate with Firebase using:
-          - Project ID: '${configuredProjectId}'
-          - Auth Domain: '${configuredAuthDomain}'
-          - API Key starts with: '${configuredApiKeyPartial}'
-          
-          VERIFY ALL THREE:
-          1. These values EXACTLY match your target Firebase project in the Firebase console.
-          2. In that Firebase project console (Authentication > Sign-in method), '${window.location.hostname}' (and 'localhost' for local dev) IS listed in 'Authorized domains'. Ensure your project's hosting domains (e.g., ${configuredProjectId}.web.app, ${configuredProjectId}.firebaseapp.com) are also listed.
-          3. The Google sign-in provider IS enabled there.
+        toastDescription = `The domain '${currentHostname}' is not authorized. Check the browser console for details to add to your Firebase project's 'Authorized domains' list.`;
+        toastDuration = 20000;
 
-          If all match, check for typos in your .env.local file or try an incognito browser window.`;
-        toastDuration = 30000; // Longer duration for this detailed message
+        console.error("UNAUTHORIZED DOMAIN DETAILS FOR FIREBASE CONFIGURATION:");
+        console.error(`Current Hostname (add this to Firebase 'Authorized domains'): ${currentHostname}`);
+        console.error(`Firebase Project ID your app is using: ${configuredProjectId}`);
+        console.error(`Firebase Auth Domain your app is using: ${configuredAuthDomain}`);
+        console.error(`Firebase API Key your app is using (starts with): ${configuredApiKeyPartial}`);
+        console.error("INSTRUCTIONS: 1. Copy the 'Current Hostname' above. 2. Go to your Firebase project console > Authentication > Sign-in method > Authorized domains. 3. Add the copied hostname. 4. Ensure the Project ID and Auth Domain match your target project.");
       }
 
       toast({ 
@@ -79,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         variant: 'destructive',
         duration: toastDuration
       });
-      setLoading(false); // Reset loading on error
+      setLoading(false);
     }
   };
 
@@ -87,12 +82,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       await signOut(auth);
-      // User state will be updated by onAuthStateChanged
       toast({ title: 'Signed Out', description: 'Successfully signed out.' });
     } catch (error: any) {
       console.error("Error signing out:", error);
       toast({ title: 'Sign Out Error', description: error.message || 'Could not sign out.', variant: 'destructive' });
-      setLoading(false); // Reset loading on error
+      setLoading(false);
     }
   };
 
@@ -110,3 +104,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
