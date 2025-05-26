@@ -34,13 +34,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signInWithGoogle = async () => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
+    
+    // Diagnostic logging
+    console.log('Attempting Google Sign-In with Firebase project:');
+    console.log('Auth Domain from SDK config:', auth.app.options.authDomain);
+    console.log('Project ID from SDK config:', auth.app.options.projectId);
+    console.log('API Key from SDK config (first 5 chars):', auth.app.options.apiKey?.substring(0,5));
+
+
     try {
       await signInWithPopup(auth, provider);
       // User state will be updated by onAuthStateChanged
       toast({ title: 'Signed In', description: 'Successfully signed in with Google.' });
     } catch (error: any) {
       console.error("Error signing in with Google:", error);
-      toast({ title: 'Sign In Error', description: error.message || 'Could not sign in with Google.', variant: 'destructive' });
+      // Check specifically for auth/unauthorized-domain to provide more targeted advice
+      if (error.code === 'auth/unauthorized-domain') {
+        toast({ 
+          title: 'Sign In Error: Unauthorized Domain', 
+          description: 'The domain localhost is not authorized for this Firebase project. Please check your Firebase console > Authentication > Sign-in method > Authorized domains. Also, verify the Firebase project ID and Auth Domain logged in the console match your intended project.', 
+          variant: 'destructive',
+          duration: 10000 // Longer duration for this important message
+        });
+      } else {
+        toast({ title: 'Sign In Error', description: error.message || 'Could not sign in with Google.', variant: 'destructive' });
+      }
       setLoading(false); // Reset loading on error
     }
   };
