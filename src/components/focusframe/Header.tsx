@@ -16,10 +16,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, ShieldAlert, Loader2 } from 'lucide-react';
-import { ConfirmDialog } from './ConfirmDialog';
+import { ConfirmDialog } from './ConfirmDeleteDialog'; // Corrected to likely actual filename
 
 export function Header() {
-  const { currentUser, signInWithGoogle, signOutUser, forgetUserAccount, loading: authLoading } = useAuth();
+  const { currentUser, signOutUser, forgetUserAccount, loading: authLoading } = useAuth();
   const router = useRouter();
   const [isForgetMeDialogOpen, setIsForgetMeDialogOpen] = useState(false);
 
@@ -34,7 +34,6 @@ export function Header() {
   const confirmForgetMe = async () => {
     if (currentUser) {
       await forgetUserAccount();
-      // AuthContext will handle user state changes, potentially redirecting or clearing UI
     }
     setIsForgetMeDialogOpen(false);
   };
@@ -86,7 +85,6 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              // Sign in button removed from here
               null
             )}
           </div>

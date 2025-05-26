@@ -5,7 +5,7 @@ import { useState, useEffect, type DragEvent } from 'react';
 import { Header } from '@/components/focusframe/Header';
 import { BucketColumn } from '@/components/focusframe/BucketColumn';
 import { AddActionItemModal } from '@/components/focusframe/AddActionItemModal';
-import { ConfirmDialog } from '@/components/focusframe/ConfirmDialog';
+import { ConfirmDialog } from '@/components/focusframe/ConfirmDeleteDialog';
 import type { ActionItem, BucketType } from '@/types';
 import { 
   getActionItemsStream, 
@@ -79,7 +79,7 @@ export default function SphereOfControlPage() {
         await updateActionItem(currentUser.uid, idToUpdate, { content, bucket });
         toast({ title: 'Item Updated', description: `"${content.substring(0,30)}..." updated.` });
       } else { 
-        const newItemData = { content, bucket };
+        const newItemData = { content, bucket, userId: currentUser.uid };
         await addActionItem(currentUser.uid, newItemData); 
         toast({ title: 'Item Added', description: `"${content.substring(0,30)}..." added to ${bucket}.` });
       }
