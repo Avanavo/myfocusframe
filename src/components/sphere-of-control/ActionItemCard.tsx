@@ -28,16 +28,16 @@ export function ActionItemCard({
     <Card
       draggable
       onDragStart={handleDragStart}
-      className="mb-3 cursor-grab active:cursor-grabbing shadow-md hover:shadow-lg transition-shadow duration-150 bg-card"
+      className="mb-4 cursor-grab active:cursor-grabbing shadow-md hover:shadow-lg transition-shadow duration-150 bg-card"
       aria-label={`Action item: ${item.content}`}
     >
-      <CardContent className="p-4">
-        <p className="text-sm text-card-foreground mb-2">{item.content}</p>
-        <div className="text-xs text-muted-foreground">
+      <CardContent className="p-5">
+        <p className="text-sm text-card-foreground">{item.content}</p>
+        <div className="text-xs text-muted-foreground mt-3">
           Added: {new Date(item.createdAt).toLocaleDateString()}
         </div>
       </CardContent>
-      <CardFooter className="p-3 flex justify-end gap-2 border-t border-border/50">
+      <CardFooter className="p-4 flex justify-end gap-2 border-t border-border/50">
         <Button
           variant="ghost"
           size="icon"

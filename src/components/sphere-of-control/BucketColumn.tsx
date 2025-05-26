@@ -56,9 +56,9 @@ export function BucketColumn({
       aria-labelledby={`bucket-title-${bucketType}`}
     >
       <CardHeader className="flex flex-row items-center justify-between p-4 border-b border-border/60">
-        <div className="flex items-center gap-2">
-          <IconComponent className="w-6 h-6 text-primary" />
-          <CardTitle id={`bucket-title-${bucketType}`} className="text-xl font-semibold text-foreground">{title}</CardTitle>
+        <div className="flex items-center gap-3">
+          <IconComponent className="w-7 h-7 text-primary" />
+          <CardTitle id={`bucket-title-${bucketType}`} className="text-2xl font-semibold text-foreground">{title}</CardTitle>
         </div>
         <Button
           variant="ghost"
