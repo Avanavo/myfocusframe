@@ -184,8 +184,8 @@ export default function SphereOfControlPage() {
         <Header /> 
         <main className="flex-grow container mx-auto px-4 py-6 flex flex-col items-center justify-center text-center">
           <h2 className="text-2xl font-semibold mb-4 text-foreground">Welcome to your FocusFrame</h2>
-          <p className="mb-6 text-muted-foreground">Please sign in with Google to manage your action items.</p>
-          <Button onClick={signInWithGoogle} size="lg">
+          
+          <Button onClick={signInWithGoogle} size="lg" className="mt-2">
             <LogIn className="mr-2 h-5 w-5" />
             Sign in with Google
           </Button>

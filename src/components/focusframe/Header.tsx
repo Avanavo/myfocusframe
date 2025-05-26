@@ -44,7 +44,7 @@ export function Header() {
         <div className="container mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push('/')}>
             <Logo />
-            <h1 className="text-2xl font-semibold text-foreground">My Focus Frame</h1>
+            <h1 className="text-2xl font-semibold text-foreground">My FocusFrame</h1>
           </div>
           <div className="flex items-center gap-3">
             {authLoading ? (
