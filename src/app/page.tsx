@@ -210,23 +210,27 @@ export default function SphereOfControlPage() {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start"> {/* Added items-start for alignment when heights differ */}
-          {BUCKET_TYPES.map(bucketType => (
-            <BucketColumn
-              key={bucketType}
-              bucketType={bucketType}
-              title={BUCKET_TITLES[bucketType]}
-              items={actionItems.filter(item => item.bucket === bucketType)}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onDragStartCard={handleDragStart}
-              onOpenAddModal={openAddModal}
-              onEditItem={openEditModal}
-              onDeleteItem={handleDeleteItem}
-              isCollapsed={collapsedBuckets[bucketType]}
-              onToggleCollapse={toggleBucketCollapse}
-            />
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          {BUCKET_TYPES.map(bucketType => {
+            const itemsInBucket = actionItems.filter(item => item.bucket === bucketType);
+            return (
+              <BucketColumn
+                key={bucketType}
+                bucketType={bucketType}
+                title={BUCKET_TITLES[bucketType]}
+                items={itemsInBucket}
+                itemCount={itemsInBucket.length}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onDragStartCard={handleDragStart}
+                onOpenAddModal={openAddModal}
+                onEditItem={openEditModal}
+                onDeleteItem={handleDeleteItem}
+                isCollapsed={collapsedBuckets[bucketType]}
+                onToggleCollapse={toggleBucketCollapse}
+              />
+            );
+          })}
         </div>
       </main>
 

@@ -9,11 +9,13 @@ import { PlusCircle, Target, Megaphone, Anchor, ChevronDown, ChevronUp } from 'l
 import { ActionItemCard } from './ActionItemCard';
 import type { ActionItem, BucketType } from '@/types';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 interface BucketColumnProps {
   bucketType: BucketType;
   title: string;
   items: ActionItem[];
+  itemCount: number;
   onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
   onDrop: (e: React.DragEvent<HTMLDivElement>, bucket: BucketType) => void;
   onDragStartCard: (e: React.DragEvent<HTMLDivElement>, itemId: string) => void;
@@ -34,6 +36,7 @@ export function BucketColumn({
   bucketType,
   title,
   items,
+  itemCount,
   onDragOver,
   onDrop,
   onDragStartCard,
@@ -64,9 +67,14 @@ export function BucketColumn({
       aria-labelledby={`bucket-title-${bucketType}`}
     >
       <CardHeader className="flex flex-row items-center justify-between p-4 border-b border-border/60">
-        <div className="flex items-center gap-2">
-          <IconComponent className="w-6 h-6 text-primary" />
+        <div className="flex items-center gap-3">
+          <IconComponent className="w-7 h-7 text-primary" />
           <CardTitle id={`bucket-title-${bucketType}`} className="text-xl font-semibold text-foreground">{title}</CardTitle>
+          {isCollapsed && (
+            <Badge variant="secondary" className="ml-1 text-xs">
+              {itemCount}
+            </Badge>
+          )}
         </div>
         <div className="flex items-center">
            <Button
