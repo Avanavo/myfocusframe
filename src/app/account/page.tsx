@@ -8,7 +8,7 @@ import { Header } from '@/components/sphere-of-control/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Loader2, ShieldAlert, Brain } from 'lucide-react'; // Added Brain for style
+import { Loader2, ShieldAlert } from 'lucide-react';
 import { ConfirmDialog } from '@/components/sphere-of-control/ConfirmDeleteDialog';
 import type { ActionItem, BucketType } from '@/types';
 import { getActionItemsStream } from '@/lib/firestoreService';
@@ -63,7 +63,7 @@ export default function AccountPage() {
   };
 
   const personality = useMemo(() => {
-    if (isLoadingItems && authLoading) return "Calculating..."; // Still waiting for auth or items
+    if (isLoadingItems && authLoading) return "Calculating...";
     if (!currentUser || actionItems.length === 0) return "Balanced Individual";
 
     const counts: Record<BucketType, number> = {
@@ -80,19 +80,17 @@ export default function AccountPage() {
 
     const maxCount = Math.max(counts.control, counts.influence, counts.acceptance);
 
-    if (maxCount === 0) return "Balanced Individual"; // No items in any bucket specifically
+    if (maxCount === 0) return "Balanced Individual";
 
-    // Handle ties with priority: Control > Influence > Acceptance
     if (counts.control === maxCount) return "Control Freak";
     if (counts.influence === maxCount) return "Influencer";
     if (counts.acceptance === maxCount) return "Master of Zen";
     
-    return "Balanced Individual"; // Should not be reached if logic is correct
-
+    return "Balanced Individual";
   }, [actionItems, currentUser, isLoadingItems, authLoading]);
   
 
-  if (authLoading || (!currentUser && !authLoading)) { // Show loader if auth is loading or if no current user yet (and auth not finished loading)
+  if (authLoading || (!currentUser && !authLoading)) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
@@ -103,7 +101,7 @@ export default function AccountPage() {
     );
   }
   
-  if (!currentUser) { // Should ideally be caught by useEffect redirect, but as a fallback
+  if (!currentUser) {
      router.push('/');
      return (
       <div className="flex flex-col min-h-screen bg-background">
@@ -114,7 +112,6 @@ export default function AccountPage() {
       </div>
     );
   }
-
 
   return (
     <>
@@ -132,6 +129,17 @@ export default function AccountPage() {
                 </div>
                 <CardTitle className="text-2xl">{currentUser.displayName || 'User Account'}</CardTitle>
                 <CardDescription>{currentUser.email}</CardDescription>
+                
+                <div className="mt-4 mb-2"> {/* Adjusted margins */}
+                  {isLoadingItems ? (
+                    <div className="flex items-center justify-center text-sm text-muted-foreground">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Calculating your style...
+                    </div>
+                  ) : (
+                    <p className="text-xl text-primary font-semibold">{personality}</p>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="space-y-6 pt-6">
                 <div>
@@ -150,20 +158,6 @@ export default function AccountPage() {
                       </p>
                     </div>
                   </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-2 text-foreground flex items-center">
-                    <Brain className="mr-2 h-5 w-5 text-primary/80" /> Your Action Style
-                  </h3>
-                  {isLoadingItems ? (
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Calculating your style...
-                    </div>
-                  ) : (
-                    <p className="text-md text-primary font-semibold">{personality}</p>
-                  )}
                 </div>
 
                 <div className="pt-2 flex flex-col sm:flex-row justify-center gap-4 border-t border-border/50 mt-6">
