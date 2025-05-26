@@ -5,10 +5,10 @@ import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Header } from '@/components/sphere-of-control/Header';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Loader2, ShieldAlert, Info } from 'lucide-react';
+import { Loader2, ShieldAlert, Info, X } from 'lucide-react';
 import { ConfirmDialog } from '@/components/sphere-of-control/ConfirmDeleteDialog';
 import type { ActionItem, BucketType } from '@/types';
 import { getActionItemsStream } from '@/lib/firestoreService';
@@ -126,9 +126,18 @@ export default function AccountPage() {
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
         <main className="flex-grow container mx-auto px-4 py-6">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto relative">
             <Card className="shadow-xl">
-              <CardHeader className="text-center">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="absolute top-3 right-3 h-7 w-7 text-muted-foreground hover:text-primary"
+                onClick={() => router.push('/')}
+                aria-label="Close account page"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+              <CardHeader className="text-center pt-8">
                 <div className="flex justify-center mb-4">
                   <Avatar className="h-24 w-24 text-3xl">
                     <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || 'User'} />
