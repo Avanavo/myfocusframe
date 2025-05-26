@@ -1,100 +1,101 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 180 60% 92%; /* #E0F4F4 - Light, desaturated blue */
-    --foreground: 215 25% 30%; /* Dark Blue-Gray for text */
+    --background: 43 33% 94%; /* Creamy Beige from Avanavo */
+    --foreground: 98 27% 25%; /* Dark Green from Avanavo */
 
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 215 25% 30%; /* Dark Blue-Gray */
+    --card: 0 0% 100%; /* White for cards, for contrast */
+    --card-foreground: 98 27% 25%; /* Dark Green */
 
     --popover: 0 0% 100%; /* White */
-    --popover-foreground: 215 25% 30%; /* Dark Blue-Gray */
+    --popover-foreground: 98 27% 25%; /* Dark Green */
 
-    --primary: 185 38% 60%; /* #6FB3B8 - Calming Blue */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 101 25% 38%; /* Medium Green from Avanavo */
+    --primary-foreground: 43 33% 96%; /* Very Light Cream for text on primary */
 
-    --secondary: 180 40% 85%; /* Lighter shade of background for secondary elements */
-    --secondary-foreground: 215 25% 35%; /* Slightly darker text for secondary */
+    --secondary: 103 27% 70%; /* Light Green from Avanavo */
+    --secondary-foreground: 98 27% 25%; /* Dark Green for text on secondary */
 
-    --muted: 180 30% 90%; /* Even lighter shade for muted elements */
-    --muted-foreground: 215 15% 50%; /* Grayer text for muted */
+    --muted: 43 30% 88%; /* Lighter Beige */
+    --muted-foreground: 98 20% 45%; /* Softer Dark Green */
 
-    --accent: 15 70% 67%; /* #E58E73 - Warm Orange */
-    --accent-foreground: 0 0% 100%; /* White */
+    --accent: 98 30% 30%; /* Dark Green (slightly more saturated for accent) */
+    --accent-foreground: 43 33% 96%; /* Very Light Cream for text on accent */
 
     --destructive: 0 84.2% 60.2%; /* Default Red */
     --destructive-foreground: 0 0% 98%; /* Default Light */
 
-    --border: 180 25% 80%; /* Subtle border, slightly darker than background */
-    --input: 180 25% 80%; /* Same as border for input fields */
-    --ring: 185 38% 60%; /* Primary color for focus rings */
+    --border: 43 25% 85%; /* Beige border */
+    --input: 43 25% 85%; /* Beige input */
+    --ring: 101 25% 38%; /* Medium Green for focus rings */
     
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-1: 101 40% 50%;
+    --chart-2: 98 30% 40%;
+    --chart-3: 43 40% 70%; /* Lighter beige/cream for charts */
+    --chart-4: 103 35% 65%;
+    --chart-5: 90 30% 45%;
 
     --radius: 0.5rem;
 
     /* Sidebar specific colors - adjust if sidebar is used, or keep defaults */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 43 33% 97%; /* Slightly lighter beige for sidebar */
+    --sidebar-foreground: 98 27% 25%;
+    --sidebar-primary: 101 25% 38%;
+    --sidebar-primary-foreground: 43 33% 96%;
+    --sidebar-accent: 103 27% 80%; /* Lighter green for sidebar accent */
+    --sidebar-accent-foreground: 98 27% 25%;
+    --sidebar-border: 43 25% 88%;
+    --sidebar-ring: 101 25% 38%;
   }
 
   .dark {
-    --background: 215 30% 15%; /* Dark Blue-Gray */
-    --foreground: 180 25% 90%; /* Light Blue-Gray Text */
+    --background: 98 20% 15%; /* Very Dark Desaturated Green */
+    --foreground: 43 33% 88%; /* Light Beige text */
 
-    --card: 215 30% 20%; /* Slightly Lighter Dark Blue-Gray */
-    --card-foreground: 180 25% 90%;
+    --card: 98 20% 20%; /* Slightly Lighter Dark Green for cards */
+    --card-foreground: 43 33% 88%;
 
-    --popover: 215 30% 20%;
-    --popover-foreground: 180 25% 90%;
+    --popover: 98 20% 20%;
+    --popover-foreground: 43 33% 88%;
 
-    --primary: 185 38% 60%; /* #6FB3B8 - Calming Blue (can remain same or adjust for dark) */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 101 30% 55%; /* Brighter Medium Green for dark mode primary */
+    --primary-foreground: 98 27% 15%; /* Very Dark Green text on primary */
 
-    --secondary: 215 30% 25%;
-    --secondary-foreground: 180 25% 90%;
+    --secondary: 103 25% 35%; /* Muted Light Green for dark mode secondary */
+    --secondary-foreground: 43 33% 88%; /* Light Beige text on secondary */
 
-    --muted: 215 30% 22%;
-    --muted-foreground: 180 20% 70%;
+    --muted: 98 15% 25%; /* Darker muted green */
+    --muted-foreground: 43 25% 70%; /* Lighter beige for muted text */
 
-    --accent: 15 70% 67%; /* #E58E73 - Warm Orange (can remain same or adjust for dark) */
-    --accent-foreground: 0 0% 100%; /* White */
+    --accent: 101 35% 60%; /* Prominent Medium Green for dark mode accent */
+    --accent-foreground: 98 27% 10%; /* Very Dark Green text on accent */
     
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62.8% 30.6%; /* Default dark Red */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 215 30% 30%;
-    --input: 215 30% 30%;
-    --ring: 185 38% 50%; /* Slightly desaturated primary for dark rings */
+    --border: 98 15% 30%; /* Dark green border */
+    --input: 98 15% 30%; /* Dark green input */
+    --ring: 101 30% 55%; /* Brighter Medium Green ring for dark mode */
 
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --chart-1: 101 50% 65%;
+    --chart-2: 98 40% 55%;
+    --chart-3: 43 40% 35%; /* Darker beige/cream for dark charts */
+    --chart-4: 103 45% 70%;
+    --chart-5: 90 40% 60%;
 
-    /* Dark Sidebar specific colors - adjust if sidebar is used */
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Dark Sidebar specific colors */
+    --sidebar-background: 98 20% 12%;
+    --sidebar-foreground: 43 33% 88%;
+    --sidebar-primary: 101 30% 55%;
+    --sidebar-primary-foreground: 98 27% 15%;
+    --sidebar-accent: 103 25% 25%;
+    --sidebar-accent-foreground: 43 33% 88%;
+    --sidebar-border: 98 15% 28%;
+    --sidebar-ring: 101 30% 55%;
   }
 }
 
@@ -104,6 +105,5 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Removed explicit font-family to allow Geist from layout.tsx to take precedence */
   }
 }

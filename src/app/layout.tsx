@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#6FB3B8', // Corresponds to --primary from globals.css light theme
+  themeColor: '#526E47', // Corresponds to new --primary: hsl(101, 25%, 38%)
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
