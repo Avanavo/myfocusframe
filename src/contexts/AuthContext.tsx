@@ -35,12 +35,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
     
-    // Diagnostic logging
-    console.log('Attempting Google Sign-In with Firebase project:');
-    console.log('Auth Domain from SDK config:', auth.app.options.authDomain);
-    console.log('Project ID from SDK config:', auth.app.options.projectId);
-    console.log('API Key from SDK config (first 5 chars):', auth.app.options.apiKey?.substring(0,5));
+    // Enhanced Diagnostic logging
+    const appOptions = auth.app.options;
+    const loggedApiKeyPartial = appOptions.apiKey ? appOptions.apiKey.substring(0,5) + '...' : 'NOT_CONFIGURED';
+    const loggedAuthDomain = appOptions.authDomain || 'NOT_CONFIGURED';
+    const loggedProjectId = appOptions.projectId || 'NOT_CONFIGURED';
 
+    console.log('Attempting Google Sign-In with Firebase project (as configured in your app):');
+    console.log('API Key (starts with):', loggedApiKeyPartial);
+    console.log('Auth Domain:', loggedAuthDomain);
+    console.log('Project ID:', loggedProjectId);
 
     try {
       await signInWithPopup(auth, provider);
@@ -48,13 +52,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast({ title: 'Signed In', description: 'Successfully signed in with Google.' });
     } catch (error: any) {
       console.error("Error signing in with Google:", error);
-      // Check specifically for auth/unauthorized-domain to provide more targeted advice
+      
       if (error.code === 'auth/unauthorized-domain') {
         toast({ 
           title: 'Sign In Error: Unauthorized Domain', 
-          description: 'The domain localhost is not authorized for this Firebase project. Please check your Firebase console > Authentication > Sign-in method > Authorized domains. Also, verify the Firebase project ID and Auth Domain logged in the console match your intended project.', 
+          description: `Your app (from 'localhost') is trying to authenticate with Firebase using:
+          - Project ID: '${loggedProjectId}'
+          - Auth Domain: '${loggedAuthDomain}'
+          - API Key starts with: '${loggedApiKeyPartial}'
+          
+          VERIFY ALL THREE:
+          1. These values EXACTLY match your target Firebase project in the Firebase console.
+          2. In that Firebase project console (Authentication > Sign-in method), 'localhost' IS listed in 'Authorized domains'.
+          3. The Google sign-in provider IS enabled there.
+
+          If all match, check for typos in your .env.local file or try an incognito browser window.`, 
           variant: 'destructive',
-          duration: 10000 // Longer duration for this important message
+          duration: 20000 // Longer duration for this detailed message
         });
       } else {
         toast({ title: 'Sign In Error', description: error.message || 'Could not sign in with Google.', variant: 'destructive' });
@@ -90,3 +104,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
