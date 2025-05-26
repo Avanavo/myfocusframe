@@ -11,13 +11,19 @@ import {
   serverTimestamp,
   orderBy,
   Timestamp,
-  type FieldValue, // Added FieldValue import
+  type FieldValue,
+  type CollectionReference, // Added CollectionReference
+  type DocumentData, // Added DocumentData
 } from 'firebase/firestore';
 import type { ActionItem, ActionItemSuggestion, BucketType } from '@/types';
 
-const ACTION_ITEMS_COLLECTION = 'actionItems';
+// Helper function to get the user-specific action items collection reference
+const getUserActionItemsCollectionRef = (userId: string): CollectionReference<DocumentData> => {
+  return collection(db, 'users', userId, 'actionItems');
+};
 
 // Type for Firestore document data, excluding 'id' and ensuring createdAt is a Timestamp for Firestore
+// No userId needed in the document itself if using subcollections
 interface ActionItemDocumentData {
   content: string;
   bucket: BucketType;
@@ -26,25 +32,32 @@ interface ActionItemDocumentData {
 }
 
 // Type for data coming from Firestore, where createdAt might be a server Timestamp
-interface ActionItemFromFirestore extends Omit<ActionItem, 'createdAt' | 'id'> {
+interface ActionItemFromFirestore extends Omit<ActionItem, 'createdAt' | 'id' | 'userId'> {
   id?: string; // id is not part of the document data itself
   createdAt: Timestamp; // Firestore specific timestamp
 }
 
 
 export function getActionItemsStream(
+  userId: string,
   callback: (items: ActionItem[]) => void,
   onError: (error: Error) => void
 ): () => void { // Returns an unsubscribe function
-  const q = query(collection(db, ACTION_ITEMS_COLLECTION), orderBy('createdAt', 'desc'));
+  if (!userId) {
+    onError(new Error("User ID is required to fetch action items."));
+    return () => {}; // Return a no-op unsubscribe function
+  }
+  const userActionItemsRef = getUserActionItemsCollectionRef(userId);
+  const q = query(userActionItemsRef, orderBy('createdAt', 'desc'));
 
   const unsubscribe = onSnapshot(q, (querySnapshot) => {
     const items: ActionItem[] = [];
-    querySnapshot.forEach((docSnapshot) => { // Renamed doc to docSnapshot to avoid conflict
+    querySnapshot.forEach((docSnapshot) => {
       const data = docSnapshot.data() as ActionItemFromFirestore;
       items.push({
         ...data,
         id: docSnapshot.id,
+        userId: userId, // Add userId to the item for local state if needed, though not stored in subcollection document
         createdAt: data.createdAt.toDate().toISOString(), // Convert Firestore Timestamp to ISO string
       });
     });
@@ -58,27 +71,29 @@ export function getActionItemsStream(
 }
 
 export async function addActionItem(
-  itemData: Omit<ActionItem, 'id' | 'createdAt' | 'suggestion'> & { suggestion?: ActionItemSuggestion | null }
+  userId: string,
+  itemData: Omit<ActionItem, 'id' | 'createdAt' | 'suggestion' | 'userId'> & { suggestion?: ActionItemSuggestion | null }
 ): Promise<string> {
+  if (!userId) {
+    throw new Error("User ID is required to add an action item.");
+  }
   try {
     const dataForFirestore: {
       content: string;
       bucket: BucketType;
       createdAt: FieldValue;
-      suggestion?: ActionItemSuggestion; // Make suggestion optional, not allowing null here
+      suggestion?: ActionItemSuggestion;
     } = {
       content: itemData.content,
       bucket: itemData.bucket,
       createdAt: serverTimestamp(),
     };
 
-    // Only add the suggestion field if itemData.suggestion is a truthy object.
-    // If itemData.suggestion is null or undefined, the 'suggestion' field will be omitted.
     if (itemData.suggestion) {
       dataForFirestore.suggestion = itemData.suggestion;
     }
-
-    const docRef = await addDoc(collection(db, ACTION_ITEMS_COLLECTION), dataForFirestore);
+    const userActionItemsRef = getUserActionItemsCollectionRef(userId);
+    const docRef = await addDoc(userActionItemsRef, dataForFirestore);
     return docRef.id;
   } catch (error) {
     console.error("Error adding action item: ", error);
@@ -86,7 +101,8 @@ export async function addActionItem(
       content: itemData.content,
       bucket: itemData.bucket,
       createdAt: 'serverTimestamp_placeholder',
-      suggestion: itemData.suggestion // Log what was provided
+      suggestion: itemData.suggestion,
+      userId: userId
     };
     console.error("Data attempted:", dataAttempted);
     throw error;
@@ -94,14 +110,16 @@ export async function addActionItem(
 }
 
 export async function updateActionItem(
+  userId: string,
   itemId: string,
-  updates: Partial<Omit<ActionItem, 'id' | 'createdAt'>>
+  updates: Partial<Omit<ActionItem, 'id' | 'createdAt' | 'userId'>>
 ): Promise<void> {
+  if (!userId) {
+    throw new Error("User ID is required to update an action item.");
+  }
   try {
-    const itemDocRef = doc(db, ACTION_ITEMS_COLLECTION, itemId);
-    // If createdAt is part of updates, it should be a serverTimestamp or already a Firestore Timestamp
-    // For simplicity, we are not allowing direct update of createdAt here.
-    // If you need to update createdAt, handle its conversion to Firestore Timestamp carefully.
+    // Construct the path to the document within the user's subcollection
+    const itemDocRef = doc(db, 'users', userId, 'actionItems', itemId);
     const { createdAt, ...validUpdates } = updates as any; 
     await updateDoc(itemDocRef, validUpdates);
   } catch (error) {
@@ -110,9 +128,12 @@ export async function updateActionItem(
   }
 }
 
-export async function deleteActionItem(itemId: string): Promise<void> {
+export async function deleteActionItem(userId: string, itemId: string): Promise<void> {
+  if (!userId) {
+    throw new Error("User ID is required to delete an action item.");
+  }
   try {
-    const itemDocRef = doc(db, ACTION_ITEMS_COLLECTION, itemId);
+    const itemDocRef = doc(db, 'users', userId, 'actionItems', itemId);
     await deleteDoc(itemDocRef);
   } catch (error) {
     console.error("Error deleting action item: ", error);

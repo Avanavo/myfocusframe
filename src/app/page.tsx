@@ -38,22 +38,22 @@ export default function SphereOfControlPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDeleteId, setItemToDeleteId] = useState<string | null>(null);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
-  const [isClient, setIsClient] = useState(false); // Keep for now, may optimize later
+  const [isClient, setIsClient] = useState(false);
 
   const { toast } = useToast();
 
   useEffect(() => {
-    setIsClient(true); // Set client status once
+    setIsClient(true); 
 
-    if (!currentUser) {
-      setActionItems([]); // Clear items if user logs out or is not present
+    if (!currentUser?.uid) {
+      setActionItems([]); 
       setIsLoadingItems(false);
       return;
     }
 
     setIsLoadingItems(true);
-    // In Phase 2, we will pass currentUser.uid to getActionItemsStream
     const unsubscribe = getActionItemsStream(
+      currentUser.uid, // Pass user ID
       (items) => {
         setActionItems(items);
         setIsLoadingItems(false);
@@ -68,7 +68,7 @@ export default function SphereOfControlPage() {
   }, [currentUser, toast]);
 
   const getAiSuggestion = useCallback(async (itemContent: string, currentBucket: BucketType, itemId: string) => {
-    if (!currentUser) return; // Guard against AI calls if not logged in
+    if (!currentUser?.uid) return; 
     setIsLoadingAi(true);
     try {
       const input: SuggestRecategorizationInput = { actionItem: itemContent, currentBucket };
@@ -79,7 +79,7 @@ export default function SphereOfControlPage() {
           suggestedBucket: suggestionResult.suggestedBucket as BucketType, 
           reasoning: suggestionResult.reasoning! 
         };
-        await updateActionItem(itemId, { suggestion });
+        await updateActionItem(currentUser.uid, itemId, { suggestion }); // Pass user ID
         toast({ title: 'AI Suggestion', description: `AI has a suggestion for item: "${itemContent.substring(0,20)}..."`});
       }
     } catch (error) {
@@ -88,22 +88,22 @@ export default function SphereOfControlPage() {
     } finally {
       setIsLoadingAi(false);
     }
-  }, [currentUser, toast]); // Added currentUser dependency
+  }, [currentUser, toast]); 
 
   const handleAddItem = async (content: string, bucket: BucketType, idToUpdate?: string) => {
-    if (!currentUser) {
+    if (!currentUser?.uid) {
       toast({ title: 'Not Signed In', description: 'You must be signed in to add items.', variant: 'destructive' });
       return;
     }
-    // In Phase 2, we will pass currentUser.uid to addActionItem/updateActionItem
     try {
       if (idToUpdate) { 
-        await updateActionItem(idToUpdate, { content, bucket, suggestion: null });
+        await updateActionItem(currentUser.uid, idToUpdate, { content, bucket, suggestion: null }); // Pass user ID
         toast({ title: 'Item Updated', description: `"${content.substring(0,30)}..." updated.` });
         getAiSuggestion(content, bucket, idToUpdate);
       } else { 
         const newItemData = { content, bucket, suggestion: null };
-        const newId = await addActionItem(newItemData);
+        // addActionItem now takes userId as the first argument
+        const newId = await addActionItem(currentUser.uid, newItemData); // Pass user ID
         toast({ title: 'Item Added', description: `"${content.substring(0,30)}..." added to ${bucket}.` });
         getAiSuggestion(content, bucket, newId);
       }
@@ -115,7 +115,7 @@ export default function SphereOfControlPage() {
   };
 
   const handleTranscriptionComplete = (text: string) => {
-    if (!currentUser) {
+    if (!currentUser?.uid) {
        toast({ title: 'Not Signed In', description: 'Please sign in to add items via voice.', variant: 'destructive' });
       return;
     }
@@ -139,12 +139,12 @@ export default function SphereOfControlPage() {
 
   const handleDrop = async (e: DragEvent<HTMLDivElement>, targetBucket: BucketType) => {
     e.preventDefault();
-    if (!draggedItemId || !currentUser) return;
+    if (!draggedItemId || !currentUser?.uid) return;
 
     const itemToMove = actionItems.find(item => item.id === draggedItemId);
     if (itemToMove && itemToMove.bucket !== targetBucket) {
       try {
-        await updateActionItem(draggedItemId, { bucket: targetBucket, suggestion: null });
+        await updateActionItem(currentUser.uid, draggedItemId, { bucket: targetBucket, suggestion: null }); // Pass user ID
         toast({ title: 'Item Moved', description: `Item moved to ${targetBucket}.` });
         getAiSuggestion(itemToMove.content, targetBucket, itemToMove.id);
       } catch (error) {
@@ -156,7 +156,7 @@ export default function SphereOfControlPage() {
   };
 
   const openAddModal = (bucket: BucketType) => {
-    if (!currentUser) {
+    if (!currentUser?.uid) {
        toast({ title: 'Not Signed In', description: 'Please sign in to add items.', variant: 'destructive' });
       return;
     }
@@ -166,23 +166,23 @@ export default function SphereOfControlPage() {
   };
   
   const openEditModal = (item: ActionItem) => {
-    if (!currentUser) return;
+    if (!currentUser?.uid) return;
     setItemToEdit(item);
     setDefaultBucketForModal(item.bucket);
     setIsModalOpen(true);
   };
 
   const handleDeleteItem = (itemId: string) => {
-    if (!currentUser) return;
+    if (!currentUser?.uid) return;
     setItemToDeleteId(itemId);
     setIsDeleteDialogOpen(true);
   };
 
   const confirmDeleteItem = async () => {
-    if (itemToDeleteId && currentUser) {
+    if (itemToDeleteId && currentUser?.uid) {
       const item = actionItems.find(it => it.id === itemToDeleteId);
       try {
-        await deleteActionItem(itemToDeleteId);
+        await deleteActionItem(currentUser.uid, itemToDeleteId); // Pass user ID
         toast({ title: 'Item Deleted', description: `"${item?.content.substring(0,30)}..." deleted.`, variant: 'destructive' });
       } catch (error) {
         console.error("Error deleting item:", error);
@@ -193,20 +193,20 @@ export default function SphereOfControlPage() {
   };
   
   const handleApplySuggestion = async (itemId: string, newBucket: BucketType) => {
-    if (!currentUser) return;
+    if (!currentUser?.uid) return;
     try {
-      await updateActionItem(itemId, { bucket: newBucket, suggestion: null });
+      await updateActionItem(currentUser.uid, itemId, { bucket: newBucket, suggestion: null }); // Pass user ID
       toast({ title: 'Suggestion Applied', description: `Item moved to ${newBucket}.`});
-    } catch (error) { // Added opening brace
+    } catch (error) { 
       console.error("Error applying suggestion:", error);
       toast({ title: 'Error Applying Suggestion', description: 'Could not update item.', variant: 'destructive' });
     }
   };
 
   const handleDismissSuggestion = async (itemId: string) => {
-    if (!currentUser) return;
+    if (!currentUser?.uid) return;
     try {
-      await updateActionItem(itemId, { suggestion: null });
+      await updateActionItem(currentUser.uid, itemId, { suggestion: null }); // Pass user ID
       toast({ title: 'Suggestion Dismissed'});
     } catch (error) {
       console.error("Error dismissing suggestion:", error);
@@ -242,8 +242,7 @@ export default function SphereOfControlPage() {
     );
   }
 
-  // If authenticated and past initial client check / item loading:
-  if (!isClient || (isLoadingItems && actionItems.length === 0)) { // Show loader if client not ready or items loading for first time
+  if (!isClient || (isLoadingItems && actionItems.length === 0)) { 
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
