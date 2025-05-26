@@ -1,12 +1,8 @@
+
 {
-  "name": "Sphere of Control",
-  "short_name": "SphereCtrl",
-  "description": "Manage your action items effectively.",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#E0F4F4",
-  "theme_color": "#6FB3B8",
-  "orientation": "portrait-primary",
+  "name": "FocusFrame",
+  "short_name": "FocusFrame",
+  "description": "Manage your action items effectively by categorizing them into control, influence, or acceptance.",
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -42,7 +38,7 @@
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable any"
     },
     {
       "src": "/icons/icon-384x384.png",
@@ -54,7 +50,12 @@
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable any"
     }
-  ]
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBF9F3",
+  "theme_color": "#526E47",
+  "orientation": "portrait-primary"
 }

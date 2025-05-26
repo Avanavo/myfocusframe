@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogIn, User, LogOut, ShieldAlert, Loader2 } from 'lucide-react'; // Changed Trash2 to ShieldAlert
+import { LogIn, User, LogOut, ShieldAlert, Loader2 } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDeleteDialog';
 
 export function Header() {
@@ -45,7 +45,7 @@ export function Header() {
         <div className="container mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push('/')}>
             <Logo />
-            <h1 className="text-2xl font-semibold text-foreground">Sphere of Control</h1>
+            <h1 className="text-2xl font-semibold text-foreground">FocusFrame</h1>
           </div>
           <div className="flex items-center gap-3">
             {authLoading ? (

@@ -16,18 +16,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Sphere of Control',
+  title: 'FocusFrame',
   description: 'Manage your action items effectively.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Sphere of Control",
+    title: "FocusFrame",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#526E47', // Corresponds to new --primary: hsl(101, 25%, 38%)
+  themeColor: 'hsl(43, 33%, 94%)', // Corresponds to new --background for light mode
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,

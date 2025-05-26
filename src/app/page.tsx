@@ -5,7 +5,7 @@ import { useState, useEffect, type DragEvent } from 'react';
 import { Header } from '@/components/sphere-of-control/Header';
 import { BucketColumn } from '@/components/sphere-of-control/BucketColumn';
 import { AddActionItemModal } from '@/components/sphere-of-control/AddActionItemModal';
-import { ConfirmDialog } from '@/components/sphere-of-control/ConfirmDeleteDialog'; // Changed import
+import { ConfirmDialog } from '@/components/sphere-of-control/ConfirmDeleteDialog';
 import type { ActionItem, BucketType } from '@/types';
 import { 
   getActionItemsStream, 
@@ -139,7 +139,7 @@ export default function SphereOfControlPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteRequest = (itemId: string) => { // Renamed from handleDeleteItem
+  const handleDeleteRequest = (itemId: string) => {
     if (!currentUser?.uid) return;
     setItemToDeleteId(itemId);
     setIsDeleteDialogOpen(true);
@@ -183,7 +183,7 @@ export default function SphereOfControlPage() {
       <div className="flex flex-col min-h-screen bg-background">
         <Header /> 
         <main className="flex-grow container mx-auto px-4 py-6 flex flex-col items-center justify-center text-center">
-          <h2 className="text-2xl font-semibold mb-4 text-foreground">Welcome to Sphere of Control</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-foreground">Welcome to FocusFrame</h2>
           <p className="mb-6 text-muted-foreground">Please sign in with Google to manage your action items.</p>
           <Button onClick={signInWithGoogle} size="lg">
             <LogIn className="mr-2 h-5 w-5" />
@@ -228,7 +228,7 @@ export default function SphereOfControlPage() {
                 onDragStartCard={handleDragStart}
                 onOpenAddModal={openAddModal}
                 onEditItem={openEditModal}
-                onDeleteItem={handleDeleteRequest} // Changed to handleDeleteRequest
+                onDeleteItem={handleDeleteRequest}
                 isCollapsed={collapsedBuckets[bucketType]}
                 onToggleCollapse={toggleBucketCollapse}
               />
