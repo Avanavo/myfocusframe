@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   orderBy,
   Timestamp,
+  type FieldValue, // Added FieldValue import
 } from 'firebase/firestore';
 import type { ActionItem, ActionItemSuggestion, BucketType } from '@/types';
 
@@ -39,11 +40,11 @@ export function getActionItemsStream(
 
   const unsubscribe = onSnapshot(q, (querySnapshot) => {
     const items: ActionItem[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data() as ActionItemFromFirestore;
+    querySnapshot.forEach((docSnapshot) => { // Renamed doc to docSnapshot to avoid conflict
+      const data = docSnapshot.data() as ActionItemFromFirestore;
       items.push({
         ...data,
-        id: doc.id,
+        id: docSnapshot.id,
         createdAt: data.createdAt.toDate().toISOString(), // Convert Firestore Timestamp to ISO string
       });
     });
@@ -60,13 +61,34 @@ export async function addActionItem(
   itemData: Omit<ActionItem, 'id' | 'createdAt' | 'suggestion'> & { suggestion?: ActionItemSuggestion | null }
 ): Promise<string> {
   try {
-    const docRef = await addDoc(collection(db, ACTION_ITEMS_COLLECTION), {
-      ...itemData,
-      createdAt: serverTimestamp(), // Use server timestamp
-    });
+    const dataForFirestore: {
+      content: string;
+      bucket: BucketType;
+      createdAt: FieldValue;
+      suggestion?: ActionItemSuggestion; // Make suggestion optional, not allowing null here
+    } = {
+      content: itemData.content,
+      bucket: itemData.bucket,
+      createdAt: serverTimestamp(),
+    };
+
+    // Only add the suggestion field if itemData.suggestion is a truthy object.
+    // If itemData.suggestion is null or undefined, the 'suggestion' field will be omitted.
+    if (itemData.suggestion) {
+      dataForFirestore.suggestion = itemData.suggestion;
+    }
+
+    const docRef = await addDoc(collection(db, ACTION_ITEMS_COLLECTION), dataForFirestore);
     return docRef.id;
   } catch (error) {
     console.error("Error adding action item: ", error);
+    const dataAttempted = {
+      content: itemData.content,
+      bucket: itemData.bucket,
+      createdAt: 'serverTimestamp_placeholder',
+      suggestion: itemData.suggestion // Log what was provided
+    };
+    console.error("Data attempted:", dataAttempted);
     throw error;
   }
 }
