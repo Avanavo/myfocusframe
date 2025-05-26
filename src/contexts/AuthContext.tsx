@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       let toastTitle = 'Sign In Error';
       let toastDescription = `An error occurred: ${error.message || 'Could not sign in with Google.'}`;
       
-      const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
+      const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown-host';
       const sdkConfig = {
         apiKey: auth.app.options.apiKey?.substring(0,5) + "...",
         authDomain: auth.app.options.authDomain,
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error.code === 'auth/unauthorized-domain') {
         toastTitle = 'Sign In Error: Unauthorized Domain';
-        toastDescription = `The domain '${currentHostname}' is not authorized for this app. Please check the browser console for details to add to your Firebase project's 'Authorized domains' list.`;
+        toastDescription = `The domain '${currentHostname}' is not authorized. Please check the browser console for details to add to your Firebase project's 'Authorized domains' list. Ensure your app's configured Project ID (${sdkConfig.projectId}) and Auth Domain (${sdkConfig.authDomain}) match the Firebase project where you are authorizing domains. API Key starts with: ${sdkConfig.apiKey}.`;
         console.error("UNAUTHORIZED DOMAIN DETAILS FOR FIREBASE CONFIGURATION:");
         console.error(`Current Hostname (add this to Firebase 'Authorized domains'): ${currentHostname}`);
         console.error("App is configured with ->");
@@ -96,14 +96,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     setLoading(true);
     const userId = currentUser.uid;
-    const userDisplayName = currentUser.displayName || 'your';
+    // const userDisplayName = currentUser.displayName || 'your'; // No longer needed for success toast
 
     try {
       await deleteAllUserItems(userId); // Renamed from deleteAllUserActionItems
-      toast({ title: 'Data Deleted', description: `All items for ${userDisplayName} account have been deleted.` }); // Changed "action items" to "items"
+      // "Data Deleted" toast removed
 
       await currentUser.delete();
-      toast({ title: 'Account Deleted', description: `${userDisplayName} account has been permanently deleted.` });
+      // "Account Deleted" toast removed
 
     } catch (error: any) {
       console.error("Error during 'Forget Me' process:", error);

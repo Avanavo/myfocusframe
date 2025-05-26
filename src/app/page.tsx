@@ -147,10 +147,10 @@ export default function SphereOfControlPage() {
 
   const confirmDeleteItem = async () => {
     if (itemToDeleteId && currentUser?.uid) {
-      const item = items.find(it => it.id === itemToDeleteId); // Using items state
+      // const item = items.find(it => it.id === itemToDeleteId); // No longer needed for success toast
       try {
         await deleteItem(currentUser.uid, itemToDeleteId); // Renamed from deleteActionItem
-        toast({ title: 'Item Deleted', description: `"${item?.content.substring(0,30) || 'Item'}..." deleted.`, variant: 'destructive' });
+        // Success toast removed
       } catch (error) {
         console.error("Error deleting item:", error);
         toast({ title: 'Error Deleting Item', description: 'Could not delete item from Firestore.', variant: 'destructive' });
