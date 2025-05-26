@@ -30,7 +30,6 @@ export default function AccountPage() {
     if (currentUser) {
       await forgetUserAccount();
       // AuthContext will handle user state changes, potentially redirecting or clearing UI
-      // No need to router.push('/') here as onAuthStateChanged should trigger redirect if user becomes null
     }
     setIsForgetMeDialogOpen(false); // Close dialog regardless of outcome (toast will show error)
   };
@@ -64,17 +63,25 @@ export default function AccountPage() {
                 <CardTitle className="text-2xl">{currentUser.displayName || 'User Account'}</CardTitle>
                 <CardDescription>{currentUser.email}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6 pt-6"> {/* Increased spacing and pt for CardContent */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-2 text-foreground">Account Details</h3>
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Account Created:</strong> {new Date(currentUser.metadata.creationTime || Date.now()).toLocaleDateString()}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Last Sign In:</strong> {new Date(currentUser.metadata.lastSignInTime || Date.now()).toLocaleDateString()}
-                  </p>
+                  <h3 className="text-lg font-semibold mb-3 text-foreground">Account Details</h3>
+                  <div className="space-y-3"> {/* Container for the details with spacing */}
+                    <div>
+                      <p className="text-xs text-muted-foreground">Account Created</p>
+                      <p className="text-sm text-foreground">
+                        {new Date(currentUser.metadata.creationTime || Date.now()).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Last Sign In</p>
+                      <p className="text-sm text-foreground">
+                        {new Date(currentUser.metadata.lastSignInTime || Date.now()).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+                <div className="pt-2 flex flex-col sm:flex-row justify-center gap-4"> {/* Added pt for separation */}
                   <Button variant="outline" onClick={signOutUser}>
                     Sign Out
                   </Button>
