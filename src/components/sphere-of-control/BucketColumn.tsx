@@ -5,9 +5,10 @@ import type React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { PlusCircle, Target, Megaphone, Anchor } from 'lucide-react';
+import { PlusCircle, Target, Megaphone, Anchor, ChevronDown, ChevronUp } from 'lucide-react';
 import { ActionItemCard } from './ActionItemCard';
 import type { ActionItem, BucketType } from '@/types';
+import { cn } from '@/lib/utils';
 
 interface BucketColumnProps {
   bucketType: BucketType;
@@ -19,6 +20,8 @@ interface BucketColumnProps {
   onOpenAddModal: (bucket: BucketType) => void;
   onEditItem: (item: ActionItem) => void;
   onDeleteItem: (itemId: string) => void;
+  isCollapsed: boolean;
+  onToggleCollapse: (bucketType: BucketType) => void;
 }
 
 const BUCKET_ICONS: Record<BucketType, React.ElementType> = {
@@ -37,6 +40,8 @@ export function BucketColumn({
   onOpenAddModal,
   onEditItem,
   onDeleteItem,
+  isCollapsed,
+  onToggleCollapse,
 }: BucketColumnProps) {
   const IconComponent = BUCKET_ICONS[bucketType];
 
@@ -50,42 +55,59 @@ export function BucketColumn({
 
   return (
     <Card
-      className="flex-1 flex flex-col min-w-[300px] max-w-md h-[calc(100vh-200px)] bg-card/80 backdrop-blur-sm shadow-xl rounded-lg"
+      className={cn(
+        "flex-1 flex flex-col min-w-[300px] max-w-md bg-card/80 backdrop-blur-sm shadow-xl rounded-lg transition-all duration-300 ease-in-out",
+        isCollapsed ? "h-auto" : "h-[calc(100vh-200px)]"
+      )}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       aria-labelledby={`bucket-title-${bucketType}`}
     >
       <CardHeader className="flex flex-row items-center justify-between p-4 border-b border-border/60">
-        <div className="flex items-center gap-3">
-          <IconComponent className="w-7 h-7 text-primary" />
-          <CardTitle id={`bucket-title-${bucketType}`} className="text-2xl font-semibold text-foreground">{title}</CardTitle>
+        <div className="flex items-center gap-2">
+          <IconComponent className="w-6 h-6 text-primary" />
+          <CardTitle id={`bucket-title-${bucketType}`} className="text-xl font-semibold text-foreground">{title}</CardTitle>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-primary hover:text-primary/80"
-          onClick={() => onOpenAddModal(bucketType)}
-          aria-label={`Add item to ${title} bucket`}
-        >
-          <PlusCircle className="w-6 h-6" />
-        </Button>
+        <div className="flex items-center">
+           <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-primary"
+            onClick={() => onToggleCollapse(bucketType)}
+            aria-label={isCollapsed ? `Expand ${title} bucket` : `Collapse ${title} bucket`}
+            aria-expanded={!isCollapsed}
+          >
+            {isCollapsed ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-primary hover:text-primary/80"
+            onClick={() => onOpenAddModal(bucketType)}
+            aria-label={`Add item to ${title} bucket`}
+          >
+            <PlusCircle className="w-5 h-5" />
+          </Button>
+        </div>
       </CardHeader>
-      <ScrollArea className="flex-grow">
-        <CardContent className="p-4">
-          {items.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-8">No items in this bucket yet.</p>
-          )}
-          {items.map((item) => (
-            <ActionItemCard
-              key={item.id}
-              item={item}
-              onDragStart={onDragStartCard}
-              onEdit={onEditItem}
-              onDelete={onDeleteItem}
-            />
-          ))}
-        </CardContent>
-      </ScrollArea>
+      {!isCollapsed && (
+        <ScrollArea className="flex-grow">
+          <CardContent className="p-4">
+            {items.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-8">No items in this bucket yet.</p>
+            )}
+            {items.map((item) => (
+              <ActionItemCard
+                key={item.id}
+                item={item}
+                onDragStart={onDragStartCard}
+                onEdit={onEditItem}
+                onDelete={onDeleteItem}
+              />
+            ))}
+          </CardContent>
+        </ScrollArea>
+      )}
     </Card>
   );
 }
