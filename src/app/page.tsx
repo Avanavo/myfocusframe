@@ -6,12 +6,12 @@ import { Header } from '@/components/focusframe/Header';
 import { BucketColumn } from '@/components/focusframe/BucketColumn';
 import { AddActionItemModal } from '@/components/focusframe/AddActionItemModal';
 import { ConfirmDialog } from '@/components/focusframe/ConfirmDeleteDialog';
-import type { ActionItem, BucketType } from '@/types';
+import type { Item, BucketType } from '@/types'; // Renamed from ActionItem
 import { 
-  getActionItemsStream, 
-  addActionItem, 
-  updateActionItem, 
-  deleteActionItem 
+  getItemsStream, // Renamed from getActionItemsStream
+  addItem, // Renamed from addActionItem
+  updateItem, // Renamed from updateActionItem
+  deleteItem  // Renamed from deleteActionItem
 } from '@/lib/firestoreService';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogIn } from 'lucide-react';
@@ -27,11 +27,11 @@ const BUCKET_TITLES: Record<BucketType, string> = {
 
 export default function SphereOfControlPage() {
   const { currentUser, loading: authLoading, signInWithGoogle } = useAuth();
-  const [actionItems, setActionItems] = useState<ActionItem[]>([]);
+  const [items, setItems] = useState<Item[]>([]); // Renamed from actionItems
   const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState<ActionItem | null>(null);
+  const [itemToEdit, setItemToEdit] = useState<Item | null>(null); // Renamed from ActionItem
   const [defaultBucketForModal, setDefaultBucketForModal] = useState<BucketType>('control');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDeleteId, setItemToDeleteId] = useState<string | null>(null);
@@ -48,16 +48,16 @@ export default function SphereOfControlPage() {
     setIsClient(true); 
 
     if (!currentUser?.uid) {
-      setActionItems([]); 
+      setItems([]); 
       setIsLoadingItems(false);
       return;
     }
 
     setIsLoadingItems(true);
-    const unsubscribe = getActionItemsStream(
+    const unsubscribe = getItemsStream( // Renamed from getActionItemsStream
       currentUser.uid,
-      (items) => {
-        setActionItems(items);
+      (loadedItems) => { // Renamed from items to loadedItems for clarity
+        setItems(loadedItems);
         setIsLoadingItems(false);
       },
       (error) => {
@@ -69,18 +69,18 @@ export default function SphereOfControlPage() {
     return () => unsubscribe();
   }, [currentUser, toast]);
 
-  const handleAddItem = async (content: string, bucket: BucketType, idToUpdate?: string) => {
+  const handleSaveItem = async (content: string, bucket: BucketType, idToUpdate?: string) => { // Renamed from handleAddItem
     if (!currentUser?.uid) {
       toast({ title: 'Not Signed In', description: 'You must be signed in to add items.', variant: 'destructive' });
       return;
     }
     try {
       if (idToUpdate) { 
-        await updateActionItem(currentUser.uid, idToUpdate, { content, bucket });
+        await updateItem(currentUser.uid, idToUpdate, { content, bucket }); // Renamed from updateActionItem
         toast({ title: 'Item Updated', description: `"${content.substring(0,30)}..." updated.` });
       } else { 
         const newItemData = { content, bucket };
-        await addActionItem(currentUser.uid, newItemData); 
+        await addItem(currentUser.uid, newItemData); // Renamed from addActionItem
         toast({ title: 'Item Added', description: `"${content.substring(0,30)}..." added to ${bucket}.` });
       }
     } catch (error) {
@@ -109,10 +109,10 @@ export default function SphereOfControlPage() {
     e.preventDefault();
     if (!draggedItemId || !currentUser?.uid) return;
 
-    const itemToMove = actionItems.find(item => item.id === draggedItemId);
+    const itemToMove = items.find(item => item.id === draggedItemId); // Using items state
     if (itemToMove && itemToMove.bucket !== targetBucket) {
       try {
-        await updateActionItem(currentUser.uid, draggedItemId, { bucket: targetBucket });
+        await updateItem(currentUser.uid, draggedItemId, { bucket: targetBucket }); // Renamed from updateActionItem
         toast({ title: 'Item Moved', description: `Item moved to ${targetBucket}.` });
       } catch (error) {
         console.error("Error moving item:", error);
@@ -132,7 +132,7 @@ export default function SphereOfControlPage() {
     setIsModalOpen(true);
   };
   
-  const openEditModal = (item: ActionItem) => {
+  const openEditModal = (item: Item) => { // Renamed from ActionItem
     if (!currentUser?.uid) return;
     setItemToEdit(item);
     setDefaultBucketForModal(item.bucket);
@@ -147,9 +147,9 @@ export default function SphereOfControlPage() {
 
   const confirmDeleteItem = async () => {
     if (itemToDeleteId && currentUser?.uid) {
-      const item = actionItems.find(it => it.id === itemToDeleteId);
+      const item = items.find(it => it.id === itemToDeleteId); // Using items state
       try {
-        await deleteActionItem(currentUser.uid, itemToDeleteId);
+        await deleteItem(currentUser.uid, itemToDeleteId); // Renamed from deleteActionItem
         toast({ title: 'Item Deleted', description: `"${item?.content.substring(0,30) || 'Item'}..." deleted.`, variant: 'destructive' });
       } catch (error) {
         console.error("Error deleting item:", error);
@@ -194,7 +194,7 @@ export default function SphereOfControlPage() {
     );
   }
 
-  if (!isClient || (isLoadingItems && actionItems.length === 0 && currentUser)) { 
+  if (!isClient || (isLoadingItems && items.length === 0 && currentUser)) { // Using items state
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
@@ -206,7 +206,7 @@ export default function SphereOfControlPage() {
     );
   }
 
-  const itemNameToDelete = itemToDeleteId ? actionItems.find(i => i.id === itemToDeleteId)?.content.substring(0,30) + "..." : "this item";
+  const itemNameToDelete = itemToDeleteId ? items.find(i => i.id === itemToDeleteId)?.content.substring(0,30) + "..." : "this item"; // Using items state
 
 
   return (
@@ -215,7 +215,7 @@ export default function SphereOfControlPage() {
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {BUCKET_TYPES.map(bucketType => {
-            const itemsInBucket = actionItems.filter(item => item.bucket === bucketType);
+            const itemsInBucket = items.filter(item => item.bucket === bucketType); // Using items state
             return (
               <BucketColumn
                 key={bucketType}
@@ -240,7 +240,7 @@ export default function SphereOfControlPage() {
       <AddActionItemModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={handleAddItem}
+        onSave={handleSaveItem} // Renamed from handleAddItem
         itemToEdit={itemToEdit}
         defaultBucket={defaultBucketForModal}
       />

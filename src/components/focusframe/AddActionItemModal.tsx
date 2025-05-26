@@ -15,13 +15,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import type { ActionItem, BucketType } from '@/types';
+import type { Item, BucketType } from '@/types'; // Renamed from ActionItem
 
-interface AddActionItemModalProps {
+interface AddActionItemModalProps { // Interface name can be kept if it refers to the modal's purpose
   isOpen: boolean;
   onClose: () => void;
   onSave: (content: string, bucket: BucketType, id?: string) => void;
-  itemToEdit?: ActionItem | null;
+  itemToEdit?: Item | null; // Renamed from ActionItem
   defaultBucket: BucketType;
 }
 
@@ -55,9 +55,9 @@ export function AddActionItemModal({
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{itemToEdit ? 'Edit Action Item' : 'Add New Action Item'}</DialogTitle>
+            <DialogTitle>{itemToEdit ? 'Edit Item' : 'Add New Item'}</DialogTitle> {/* Changed "Action Item" to "Item" */}
             <DialogDescription>
-              {itemToEdit ? "Update the details of your action item." : `Adding to "${defaultBucket}" bucket. You can change it later.`}
+              {itemToEdit ? "Update the details of your item." : `Adding to "${defaultBucket}" bucket. You can change it later.`} {/* Changed "action item" to "item" */}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -82,7 +82,7 @@ export function AddActionItemModal({
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit">{itemToEdit ? 'Save Changes' : 'Add Item'}</Button>
+            <Button type="submit">{itemToEdit ? 'Save Changes' : 'Add Item'}</Button> {/* Changed "Add Item" */}
           </DialogFooter>
         </form>
       </DialogContent>

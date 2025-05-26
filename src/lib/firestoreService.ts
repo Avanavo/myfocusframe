@@ -17,90 +17,90 @@ import {
   getDocs,
   writeBatch,
 } from 'firebase/firestore';
-import type { ActionItem, BucketType } from '@/types';
+import type { Item, BucketType } from '@/types'; // Renamed from ActionItem
 
-// Helper function to get the user-specific action items collection reference
-const getUserActionItemsCollectionRef = (userId: string): CollectionReference<DocumentData> => {
-  return collection(db, 'users', userId, 'actionItems');
+// Helper function to get the user-specific items collection reference
+// Firestore collection name remains 'actionItems' internally to avoid data migration
+const getUserItemsCollectionRef = (userId: string): CollectionReference<DocumentData> => {
+  return collection(db, 'users', userId, 'actionItems'); 
 };
 
 // Type for Firestore document data, excluding 'id' and ensuring createdAt is a Timestamp for Firestore
-interface ActionItemDocumentData {
+interface ItemDocumentData { // Renamed from ActionItemDocumentData
   content: string;
   bucket: BucketType;
-  createdAt: FieldValue; // Use FieldValue for serverTimestamp()
+  createdAt: FieldValue; 
 }
 
 // Type for data coming from Firestore, where createdAt might be a server Timestamp
-interface ActionItemFromFirestore extends Omit<ActionItem, 'createdAt' | 'id'> {
-  id?: string; // id is not part of the document data itself
-  createdAt: Timestamp; // Firestore specific timestamp
+interface ItemFromFirestore extends Omit<Item, 'createdAt' | 'id'> { // Renamed from ActionItemFromFirestore
+  id?: string; 
+  createdAt: Timestamp; 
   content: string;
   bucket: BucketType;
 }
 
 
-export function getActionItemsStream(
+export function getItemsStream( // Renamed from getActionItemsStream
   userId: string,
-  callback: (items: ActionItem[]) => void,
+  callback: (items: Item[]) => void, // Renamed from ActionItem
   onError: (error: Error) => void
-): () => void { // Returns an unsubscribe function
+): () => void { 
   if (!userId) {
-    //onError(new Error("User ID is required to fetch action items.")); // Caller handles no user state
-    callback([]); // Return empty list if no user
-    return () => {}; // Return a no-op unsubscribe function
+    callback([]); 
+    return () => {}; 
   }
-  const userActionItemsRef = getUserActionItemsCollectionRef(userId);
-  const q = query(userActionItemsRef, orderBy('createdAt', 'desc'));
+  const userItemsRef = getUserItemsCollectionRef(userId); // Renamed from userActionItemsRef
+  const q = query(userItemsRef, orderBy('createdAt', 'desc'));
 
   const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const items: ActionItem[] = [];
+    const items: Item[] = []; // Renamed from ActionItem
     querySnapshot.forEach((docSnapshot) => {
-      const data = docSnapshot.data() as Partial<ActionItemFromFirestore>; 
+      const data = docSnapshot.data() as Partial<ItemFromFirestore>; 
 
       if (data.createdAt && typeof data.createdAt.toDate === 'function') {
         items.push({
           id: docSnapshot.id,
-          userId: userId,
+          userId: userId, 
           content: data.content || '', 
           bucket: data.bucket || 'acceptance', 
           createdAt: data.createdAt.toDate().toISOString(),
         });
       } else {
         console.warn(
-          `Action item with ID ${docSnapshot.id} has an invalid or missing 'createdAt' field. Skipping item. Data:`,
+          `Item with ID ${docSnapshot.id} has an invalid or missing 'createdAt' field. Skipping item. Data:`, // Changed "Action item" to "Item"
           data
         );
       }
     });
     callback(items);
   }, (error) => {
-    console.error("Error fetching action items: ", error);
+    console.error("Error fetching items: ", error); // Changed "action items" to "items"
     onError(error);
   });
 
   return unsubscribe;
 }
 
-export async function addActionItem(
+export async function addItem( // Renamed from addActionItem
   userId: string,
-  itemData: Omit<ActionItem, 'id' | 'createdAt' | 'userId'>
+  itemData: Omit<Item, 'id' | 'createdAt' | 'userId'> // Renamed from ActionItem
 ): Promise<string> {
   if (!userId) {
-    throw new Error("User ID is required to add an action item.");
+    throw new Error("User ID is required to add an item."); // Changed "action item" to "item"
   }
   try {
-    const dataForFirestore: ActionItemDocumentData = {
+    const dataForFirestore: ItemDocumentData = { // Renamed from ActionItemDocumentData
       content: itemData.content,
       bucket: itemData.bucket,
       createdAt: serverTimestamp(),
     };
 
-    const userActionItemsRef = getUserActionItemsCollectionRef(userId);
-    const docRef = await addDoc(userActionItemsRef, dataForFirestore);
+    const userItemsRef = getUserItemsCollectionRef(userId); // Renamed from userActionItemsRef
+    const docRef = await addDoc(userItemsRef, dataForFirestore);
     return docRef.id;
   } catch (error) {
-    console.error("Error adding action item: ", error);
+    console.error("Error adding item: ", error); // Changed "action item" to "item"
     const dataAttempted = {
       content: itemData.content,
       bucket: itemData.bucket,
@@ -112,44 +112,44 @@ export async function addActionItem(
   }
 }
 
-export async function updateActionItem(
+export async function updateItem( // Renamed from updateActionItem
   userId: string,
   itemId: string,
-  updates: Partial<Omit<ActionItem, 'id' | 'createdAt' | 'userId'>>
+  updates: Partial<Omit<Item, 'id' | 'createdAt' | 'userId'>> // Renamed from ActionItem
 ): Promise<void> {
   if (!userId) {
-    throw new Error("User ID is required to update an action item.");
+    throw new Error("User ID is required to update an item."); // Changed "action item" to "item"
   }
   try {
-    const itemDocRef = doc(db, 'users', userId, 'actionItems', itemId);
+    const itemDocRef = doc(db, 'users', userId, 'actionItems', itemId); // Collection path remains 'actionItems'
     const { createdAt, userId: RuserId, ...validUpdates } = updates as any; 
     await updateDoc(itemDocRef, validUpdates);
   } catch (error) {
-    console.error("Error updating action item: ", error);
+    console.error("Error updating item: ", error); // Changed "action item" to "item"
     throw error;
   }
 }
 
-export async function deleteActionItem(userId: string, itemId: string): Promise<void> {
+export async function deleteItem(userId: string, itemId: string): Promise<void> { // Renamed from deleteActionItem
   if (!userId) {
-    throw new Error("User ID is required to delete an action item.");
+    throw new Error("User ID is required to delete an item."); // Changed "action item" to "item"
   }
   try {
-    const itemDocRef = doc(db, 'users', userId, 'actionItems', itemId);
+    const itemDocRef = doc(db, 'users', userId, 'actionItems', itemId); // Collection path remains 'actionItems'
     await deleteDoc(itemDocRef);
   } catch (error) {
-    console.error("Error deleting action item: ", error);
+    console.error("Error deleting item: ", error); // Changed "action item" to "item"
     throw error;
   }
 }
 
-export async function deleteAllUserActionItems(userId: string): Promise<void> {
+export async function deleteAllUserItems(userId: string): Promise<void> { // Renamed from deleteAllUserActionItems
   if (!userId) {
-    throw new Error("User ID is required to delete all action items.");
+    throw new Error("User ID is required to delete all items."); // Changed "action items" to "items"
   }
   try {
-    const userActionItemsRef = getUserActionItemsCollectionRef(userId);
-    const q = query(userActionItemsRef);
+    const userItemsRef = getUserItemsCollectionRef(userId); // Renamed from userActionItemsRef
+    const q = query(userItemsRef);
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
@@ -161,9 +161,9 @@ export async function deleteAllUserActionItems(userId: string): Promise<void> {
       batch.delete(docSnapshot.ref);
     });
     await batch.commit();
-    console.log(`Successfully deleted all action items for user ${userId}`);
+    console.log(`Successfully deleted all items for user ${userId}`); // Changed "action items" to "items"
   } catch (error) {
-    console.error(`Error deleting all action items for user ${userId}: `, error);
+    console.error(`Error deleting all items for user ${userId}: `, error); // Changed "action items" to "items"
     throw error;
   }
 }

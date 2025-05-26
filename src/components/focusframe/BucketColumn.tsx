@@ -6,21 +6,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PlusCircle, Target, Megaphone, Anchor, ChevronDown, ChevronUp } from 'lucide-react';
-import { ActionItemCard } from './ActionItemCard';
-import type { ActionItem, BucketType } from '@/types';
+import { ActionItemCard } from './ActionItemCard'; // Filename implies its purpose, can keep
+import type { Item, BucketType } from '@/types'; // Renamed from ActionItem
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
 interface BucketColumnProps {
   bucketType: BucketType;
   title: string;
-  items: ActionItem[];
+  items: Item[]; // Renamed from ActionItem
   itemCount: number;
   onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
   onDrop: (e: React.DragEvent<HTMLDivElement>, bucket: BucketType) => void;
   onDragStartCard: (e: React.DragEvent<HTMLDivElement>, itemId: string) => void;
   onOpenAddModal: (bucket: BucketType) => void;
-  onEditItem: (item: ActionItem) => void;
+  onEditItem: (item: Item) => void; // Renamed from ActionItem
   onDeleteItem: (itemId: string) => void;
   isCollapsed: boolean;
   onToggleCollapse: (bucketType: BucketType) => void;
@@ -105,7 +105,7 @@ export function BucketColumn({
               <p className="text-sm text-muted-foreground text-center py-8">No items in this bucket yet.</p>
             )}
             {items.map((item) => (
-              <ActionItemCard
+              <ActionItemCard // Component name is fine, it represents a card for an 'item'
                 key={item.id}
                 item={item}
                 onDragStart={onDragStartCard}

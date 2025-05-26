@@ -4,12 +4,12 @@
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Edit3, Trash2 } from 'lucide-react';
-import type { ActionItem } from '@/types';
+import type { Item } from '@/types'; // Renamed from ActionItem
 
-interface ActionItemCardProps {
-  item: ActionItem;
+interface ActionItemCardProps { // Interface name kept for now, but prop type changed
+  item: Item; // Renamed from ActionItem
   onDragStart: (e: React.DragEvent<HTMLDivElement>, itemId: string) => void;
-  onEdit: (item: ActionItem) => void;
+  onEdit: (item: Item) => void; // Renamed from ActionItem
   onDelete: (itemId: string) => void;
 }
 
@@ -29,7 +29,7 @@ export function ActionItemCard({
       draggable
       onDragStart={handleDragStart}
       className="mb-4 cursor-grab active:cursor-grabbing shadow-md hover:shadow-lg transition-shadow duration-150 bg-card"
-      aria-label={`Action item: ${item.content}`}
+      aria-label={`Item: ${item.content}`} // Changed "Action item" to "Item"
     >
       <CardContent className="p-5">
         <p className="text-sm text-card-foreground">{item.content}</p>

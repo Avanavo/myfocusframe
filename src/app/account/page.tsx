@@ -8,50 +8,50 @@ import { Header } from '@/components/focusframe/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Loader2, ShieldAlert, Info, X } from 'lucide-react';
+import { Loader2, ShieldAlert, Info, X, Brain } from 'lucide-react'; // Added Brain for fun
 import { ConfirmDialog } from '@/components/focusframe/ConfirmDialog';
-import type { ActionItem, BucketType } from '@/types';
-import { getActionItemsStream } from '@/lib/firestoreService';
+import type { Item, BucketType } from '@/types'; // Renamed from ActionItem
+import { getItemsStream } from '@/lib/firestoreService'; // Renamed from getActionItemsStream
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PersonalityProfile {
   style: string;
   explanation: string;
-  icon?: React.ElementType; // Optional icon for future use
+  icon?: React.ElementType; 
 }
 
 export default function AccountPage() {
   const { currentUser, loading: authLoading, signOutUser, forgetUserAccount } = useAuth();
   const router = useRouter();
   const [isForgetMeDialogOpen, setIsForgetMeDialogOpen] = useState(false);
-  const [actionItems, setActionItems] = useState<ActionItem[]>([]);
+  const [items, setItems] = useState<Item[]>([]); // Renamed from actionItems
   const [isLoadingItems, setIsLoadingItems] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     if (!authLoading && !currentUser) {
-      router.push('/'); // Redirect to home if not logged in
+      router.push('/'); 
     }
   }, [currentUser, authLoading, router]);
 
   useEffect(() => {
     if (!currentUser?.uid) {
-      setActionItems([]);
+      setItems([]);
       setIsLoadingItems(false);
       return;
     }
 
     setIsLoadingItems(true);
-    const unsubscribe = getActionItemsStream(
+    const unsubscribe = getItemsStream( // Renamed from getActionItemsStream
       currentUser.uid,
-      (items) => {
-        setActionItems(items);
+      (loadedItems) => { // Renamed for clarity
+        setItems(loadedItems);
         setIsLoadingItems(false);
       },
       (error) => {
         console.error("Failed to load items for account page:", error);
-        toast({ title: 'Error Loading Data', description: 'Could not fetch your action items to determine style.', variant: 'destructive' });
+        toast({ title: 'Error Loading Data', description: 'Could not fetch your items to determine style.', variant: 'destructive' });
         setIsLoadingItems(false);
       }
     );
@@ -70,8 +70,8 @@ export default function AccountPage() {
   };
 
   const personalityProfile: PersonalityProfile = useMemo(() => {
-    if (isLoadingItems && authLoading) return { style: "Calculating...", explanation: "Analyzing your action items..." };
-    if (!currentUser || actionItems.length === 0) return { style: "Balanced Individual", explanation: "Your items are quite evenly distributed, or you're just getting started! You show a flexible approach." };
+    if (isLoadingItems && authLoading) return { style: "Calculating...", explanation: "Analyzing your items...", icon: Loader2 };
+    if (!currentUser || items.length === 0) return { style: "Balanced Individual", explanation: "Your items are quite evenly distributed, or you're just getting started! You show a flexible approach.", icon: Brain };
 
     const counts: Record<BucketType, number> = {
       control: 0,
@@ -79,7 +79,7 @@ export default function AccountPage() {
       acceptance: 0,
     };
 
-    actionItems.forEach(item => {
+    items.forEach(item => { // Using items state
       if (counts[item.bucket] !== undefined) {
         counts[item.bucket]++;
       }
@@ -87,15 +87,14 @@ export default function AccountPage() {
 
     const maxCount = Math.max(counts.control, counts.influence, counts.acceptance);
 
-    if (maxCount === 0) return { style: "Balanced Individual", explanation: "Your items are quite evenly distributed, or you're just getting started! You show a flexible approach." };
+    if (maxCount === 0) return { style: "Balanced Individual", explanation: "Your items are quite evenly distributed, or you're just getting started! You show a flexible approach.", icon: Brain };
 
-    // Determine dominant style
-    if (counts.control === maxCount) return { style: "Control Freak", explanation: "You tend to have the most items in your 'Control' bucket, focusing on what you can directly manage." };
-    if (counts.influence === maxCount) return { style: "Influencer", explanation: "Your focus seems to be on the 'Influence' bucket, aiming to affect outcomes indirectly." };
-    if (counts.acceptance === maxCount) return { style: "Master of Zen", explanation: "You often place items in the 'Acceptance' bucket, excelling at letting go of what you can't change." };
+    if (counts.control === maxCount) return { style: "Control Freak", explanation: "You tend to have the most items in your 'Control' bucket, focusing on what you can directly manage.", icon: Brain };
+    if (counts.influence === maxCount) return { style: "Influencer", explanation: "Your focus seems to be on the 'Influence' bucket, aiming to affect outcomes indirectly.", icon: Brain };
+    if (counts.acceptance === maxCount) return { style: "Master of Zen", explanation: "You often place items in the 'Acceptance' bucket, excelling at letting go of what you can't change.", icon: Brain };
     
-    return { style: "Balanced Individual", explanation: "Your items are quite evenly distributed, or you're just getting started! You show a flexible approach." };
-  }, [actionItems, currentUser, isLoadingItems, authLoading]);
+    return { style: "Balanced Individual", explanation: "Your items are quite evenly distributed, or you're just getting started! You show a flexible approach.", icon: Brain };
+  }, [items, currentUser, isLoadingItems, authLoading]); // Using items state
   
 
   if (authLoading || (!currentUser && !authLoading)) {
@@ -148,7 +147,7 @@ export default function AccountPage() {
                 <CardDescription>{currentUser.email}</CardDescription>
                 
                 <div className="mt-4 mb-2 flex items-center justify-center gap-2">
-                  {isLoadingItems ? (
+                  {isLoadingItems || (personalityProfile.icon === Loader2) ? (
                     <div className="flex items-center justify-center text-sm text-muted-foreground">
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Calculating your style...
@@ -157,6 +156,7 @@ export default function AccountPage() {
                     <TooltipProvider>
                       <Tooltip>
                         <div className="flex items-center justify-center gap-2">
+                           {personalityProfile.icon && <personalityProfile.icon className="h-6 w-6 text-primary" />}
                            <p className="text-xl text-primary font-semibold">{personalityProfile.style}</p>
                           <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary">
@@ -211,7 +211,7 @@ export default function AccountPage() {
         onClose={() => setIsForgetMeDialogOpen(false)}
         onConfirm={confirmForgetMe}
         title="Are you absolutely sure?"
-        description="This action cannot be undone. All your action items will be permanently deleted, and your account will be removed. This is for GDPR compliance."
+        description="This action cannot be undone. All your items will be permanently deleted, and your account will be removed. This is for GDPR compliance." // Changed "action items" to "items"
         confirmButtonText="Yes, Forget Me"
         confirmButtonVariant="destructive"
       />

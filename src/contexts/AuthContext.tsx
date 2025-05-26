@@ -5,16 +5,16 @@ import type { User } from 'firebase/auth';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, reauthenticateWithPopup } from 'firebase/auth';
 import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { app } from '@/lib/firebase'; // Firebase app instance
+import { app } from '@/lib/firebase'; 
 import { useToast } from '@/hooks/use-toast';
-import { deleteAllUserActionItems } from '@/lib/firestoreService'; // Import the new function
+import { deleteAllUserItems } from '@/lib/firestoreService'; // Renamed from deleteAllUserActionItems
 
 interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signOutUser: () => Promise<void>;
-  forgetUserAccount: () => Promise<void>; // New function
+  forgetUserAccount: () => Promise<void>; 
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,27 +44,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       let toastTitle = 'Sign In Error';
       let toastDescription = `An error occurred: ${error.message || 'Could not sign in with Google.'}`;
-      if (error.code) {
-        toastTitle = `Sign In Error (${error.code})`;
-      }
-      let toastDuration = 9000;
+      
+      const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
+      const sdkConfig = {
+        apiKey: auth.app.options.apiKey?.substring(0,5) + "...",
+        authDomain: auth.app.options.authDomain,
+        projectId: auth.app.options.projectId,
+      };
 
       if (error.code === 'auth/unauthorized-domain') {
-        const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
         toastTitle = 'Sign In Error: Unauthorized Domain';
-        toastDescription = `The domain '${currentHostname}' is not authorized. Check the browser console for details to add to your Firebase project's 'Authorized domains' list. The app is configured with Project ID: ${auth.app.options.projectId || 'NOT_CONFIGURED'} and Auth Domain: ${auth.app.options.authDomain || 'NOT_CONFIGURED'}.`;
-        toastDuration = 20000;
+        toastDescription = `The domain '${currentHostname}' is not authorized for this app. Please check the browser console for details to add to your Firebase project's 'Authorized domains' list.`;
         console.error("UNAUTHORIZED DOMAIN DETAILS FOR FIREBASE CONFIGURATION:");
         console.error(`Current Hostname (add this to Firebase 'Authorized domains'): ${currentHostname}`);
-        console.error(`Firebase Project ID your app is using: ${auth.app.options.projectId}`);
-        console.error(`Firebase Auth Domain your app is using: ${auth.app.options.authDomain}`);
-        console.error(`Firebase API Key your app is using (starts with): ${(auth.app.options.apiKey || '').substring(0,5)}...`);
+        console.error("App is configured with ->");
+        console.error(`Project ID: ${sdkConfig.projectId}`);
+        console.error(`Auth Domain: ${sdkConfig.authDomain}`);
+        console.error(`API Key (starts with): ${sdkConfig.apiKey}`);
+      } else if (error.code) {
+         toastTitle = `Sign In Error (${error.code})`;
       }
+
       toast({ 
         title: toastTitle, 
         description: toastDescription, 
         variant: 'destructive',
-        duration: toastDuration
+        duration: 15000 
       });
     } finally {
       setLoading(false);
@@ -94,15 +99,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const userDisplayName = currentUser.displayName || 'your';
 
     try {
-      // 1. Delete all user's action items from Firestore
-      await deleteAllUserActionItems(userId);
-      toast({ title: 'Data Deleted', description: `All action items for ${userDisplayName} account have been deleted.` });
+      await deleteAllUserItems(userId); // Renamed from deleteAllUserActionItems
+      toast({ title: 'Data Deleted', description: `All items for ${userDisplayName} account have been deleted.` }); // Changed "action items" to "items"
 
-      // 2. Delete the Firebase Auth user
-      // This might require re-authentication if the user hasn't signed in recently.
       await currentUser.delete();
       toast({ title: 'Account Deleted', description: `${userDisplayName} account has been permanently deleted.` });
-      // onAuthStateChanged will handle setting currentUser to null
 
     } catch (error: any) {
       console.error("Error during 'Forget Me' process:", error);
@@ -113,10 +114,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           variant: 'destructive',
           duration: 10000,
         });
-        // Optionally, prompt for re-authentication here
-        // For simplicity, we'll ask the user to manually re-login and retry.
-        // await reauthenticateWithPopup(currentUser, new GoogleAuthProvider());
-        // await currentUser.delete(); // Retry delete
       } else {
         toast({
           title: 'Error Deleting Account',
@@ -127,12 +124,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } finally {
       setLoading(false);
-      // Ensure user is signed out if account deletion succeeded or even if only data was deleted.
-      // onAuthStateChanged should handle currentUser being null if user.delete() succeeds.
-      // If user.delete() failed but data deletion succeeded, we might still want to sign them out.
-      if (auth.currentUser?.uid === userId) { // if the user wasn't deleted by error or other means
-         // signOut(auth); // Let onAuthStateChanged handle this after user.delete()
-      }
     }
   };
 

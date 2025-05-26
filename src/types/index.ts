@@ -1,7 +1,7 @@
 
 export type BucketType = 'control' | 'influence' | 'acceptance';
 
-export interface ActionItem {
+export interface Item { // Renamed from ActionItem
   id: string;
   userId: string; 
   content: string;
