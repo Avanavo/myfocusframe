@@ -1,9 +1,9 @@
 
-import type {Metadata} from 'next';
+import type {Metadata, Viewport} from 'next';
 import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from '@/contexts/AuthContext'; // New import
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -18,6 +18,20 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Sphere of Control',
   description: 'Manage your action items effectively.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Sphere of Control",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#6FB3B8', // Corresponds to --primary from globals.css light theme
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -28,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider> {/* Wrap with AuthProvider */}
+        <AuthProvider>
           {children}
           <Toaster />
         </AuthProvider>
