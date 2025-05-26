@@ -35,44 +35,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
     
-    // Enhanced Diagnostic logging
+    // Get Firebase config being used by the SDK for inclusion in error messages
     const appOptions = auth.app.options;
-    const loggedApiKeyPartial = appOptions.apiKey ? appOptions.apiKey.substring(0,5) + '...' : 'NOT_CONFIGURED';
-    const loggedAuthDomain = appOptions.authDomain || 'NOT_CONFIGURED';
-    const loggedProjectId = appOptions.projectId || 'NOT_CONFIGURED';
-
-    console.log('Attempting Google Sign-In with Firebase project (as configured in your app):');
-    console.log('API Key (starts with):', loggedApiKeyPartial);
-    console.log('Auth Domain:', loggedAuthDomain);
-    console.log('Project ID:', loggedProjectId);
+    const configuredApiKeyPartial = appOptions.apiKey ? appOptions.apiKey.substring(0,5) + '...' : 'NOT_CONFIGURED';
+    const configuredAuthDomain = appOptions.authDomain || 'NOT_CONFIGURED';
+    const configuredProjectId = appOptions.projectId || 'NOT_CONFIGURED';
 
     try {
       await signInWithPopup(auth, provider);
       // User state will be updated by onAuthStateChanged
       toast({ title: 'Signed In', description: 'Successfully signed in with Google.' });
     } catch (error: any) {
+      // Log the full error object to console for developers
       console.error("Error signing in with Google:", error);
       
+      let toastTitle = 'Sign In Error';
+      let toastDescription = `An error occurred: ${error.message || 'Could not sign in with Google.'}`;
+      if (error.code) {
+        toastTitle = `Sign In Error (${error.code})`;
+      }
+
+      let toastDuration = 9000; // Default duration
+
       if (error.code === 'auth/unauthorized-domain') {
-        toast({ 
-          title: 'Sign In Error: Unauthorized Domain', 
-          description: `Your app (from 'localhost') is trying to authenticate with Firebase using:
-          - Project ID: '${loggedProjectId}'
-          - Auth Domain: '${loggedAuthDomain}'
-          - API Key starts with: '${loggedApiKeyPartial}'
+        toastTitle = 'Sign In Error: Unauthorized Domain';
+        toastDescription = `Your app (from '${window.location.hostname}') is trying to authenticate with Firebase using:
+          - Project ID: '${configuredProjectId}'
+          - Auth Domain: '${configuredAuthDomain}'
+          - API Key starts with: '${configuredApiKeyPartial}'
           
           VERIFY ALL THREE:
           1. These values EXACTLY match your target Firebase project in the Firebase console.
-          2. In that Firebase project console (Authentication > Sign-in method), 'localhost' IS listed in 'Authorized domains'.
+          2. In that Firebase project console (Authentication > Sign-in method), '${window.location.hostname}' (and 'localhost' for local dev) IS listed in 'Authorized domains'. Ensure your project's hosting domains (e.g., ${configuredProjectId}.web.app, ${configuredProjectId}.firebaseapp.com) are also listed.
           3. The Google sign-in provider IS enabled there.
 
-          If all match, check for typos in your .env.local file or try an incognito browser window.`, 
-          variant: 'destructive',
-          duration: 20000 // Longer duration for this detailed message
-        });
-      } else {
-        toast({ title: 'Sign In Error', description: error.message || 'Could not sign in with Google.', variant: 'destructive' });
+          If all match, check for typos in your .env.local file or try an incognito browser window.`;
+        toastDuration = 30000; // Longer duration for this detailed message
       }
+
+      toast({ 
+        title: toastTitle, 
+        description: toastDescription, 
+        variant: 'destructive',
+        duration: toastDuration
+      });
       setLoading(false); // Reset loading on error
     }
   };
@@ -104,4 +110,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
