@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Loader2, ShieldAlert, Info, X, Brain } from 'lucide-react'; // Added Brain for fun
-import { ConfirmDialog } from '@/components/focusframe/ConfirmDeleteDialog'; // Corrected import path
+import { ConfirmDialog } from '@/components/focusframe/ConfirmDialog'; // Corrected import path
 import type { Item, BucketType } from '@/types'; 
 import { getItemsStream } from '@/lib/firestoreService'; 
 import { useToast } from '@/hooks/use-toast';

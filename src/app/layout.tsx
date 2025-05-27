@@ -4,6 +4,7 @@ import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthContext';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics'; // Added import
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: 'hsl(101, 25%, 38%)', // Corresponds to new --background for light mode
+  themeColor: 'hsl(101, 25%, 38%)', 
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -43,6 +44,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
+          {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && <GoogleAnalytics />} {/* Added GA component */}
           {children}
           <Toaster />
         </AuthProvider>

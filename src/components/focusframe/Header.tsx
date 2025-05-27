@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, ShieldAlert, Loader2, Info } from 'lucide-react';
-import { ConfirmDialog } from './ConfirmDeleteDialog'; 
+import { ConfirmDialog } from './ConfirmDialog'; 
 import { AboutDialog } from './AboutDialog';
 
 export function Header() {

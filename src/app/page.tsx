@@ -4,8 +4,8 @@
 import { useState, useEffect, type DragEvent } from 'react';
 import { Header } from '@/components/focusframe/Header';
 import { BucketColumn } from '@/components/focusframe/BucketColumn';
-import { AddActionItemModal } from '@/components/focusframe/AddActionItemModal';
-import { ConfirmDialog } from '@/components/focusframe/ConfirmDeleteDialog';
+import { AddActionItemModal } from '@/components/focusframe/AddItemModal';
+import { ConfirmDialog } from '@/components/focusframe/ConfirmDialog';
 import type { Item, BucketType } from '@/types'; // Renamed from ActionItem
 import { 
   getItemsStream, // Renamed from getActionItemsStream
