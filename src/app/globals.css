@@ -40,16 +40,6 @@
     --chart-5: 90 30% 45%;
 
     --radius: 0.5rem;
-
-    /* Sidebar specific colors - adjust if sidebar is used, or keep defaults */
-    --sidebar-background: 43 33% 97%; /* Slightly lighter beige for sidebar */
-    --sidebar-foreground: 98 27% 25%;
-    --sidebar-primary: 101 25% 38%;
-    --sidebar-primary-foreground: 43 33% 96%;
-    --sidebar-accent: 103 27% 80%; /* Lighter green for sidebar accent */
-    --sidebar-accent-foreground: 98 27% 25%;
-    --sidebar-border: 43 25% 88%;
-    --sidebar-ring: 101 25% 38%;
   }
 
   .dark {
@@ -86,16 +76,6 @@
     --chart-3: 43 40% 35%; /* Darker beige/cream for dark charts */
     --chart-4: 103 45% 70%;
     --chart-5: 90 40% 60%;
-
-    /* Dark Sidebar specific colors */
-    --sidebar-background: 98 20% 12%;
-    --sidebar-foreground: 43 33% 88%;
-    --sidebar-primary: 101 30% 55%;
-    --sidebar-primary-foreground: 98 27% 15%;
-    --sidebar-accent: 103 25% 25%;
-    --sidebar-accent-foreground: 43 33% 88%;
-    --sidebar-border: 98 15% 28%;
-    --sidebar-ring: 101 30% 55%;
   }
 }
 
