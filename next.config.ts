@@ -11,10 +11,10 @@ const withPWA = require('next-pwa')({
 const nextConfig: NextConfig = {
   /* config options here */
   typescript: {
-    ignoreBuildErrors: false, // Changed to false
+    ignoreBuildErrors: false, 
   },
   eslint: {
-    ignoreDuringBuilds: false, // Changed to false
+    ignoreDuringBuilds: false, 
   },
   images: {
     remotePatterns: [
@@ -24,13 +24,6 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-    ],
-  },
-  devIndicators: {
-    allowedDevOrigins: [
-      // This domain was provided in a warning from Firebase Studio.
-      // It might need to be updated if your Studio preview URL changes.
-      '9003-firebase-studio-1748256100233.cluster-axf5tvtfjjfekvhwxwkkkzsk2y.cloudworkstations.dev',
     ],
   },
 };
