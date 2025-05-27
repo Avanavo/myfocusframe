@@ -12,16 +12,18 @@ import {
   DialogDescription,
   DialogClose,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+// Input component is no longer used if we only have a textarea
+// import { Input } from '@/components/ui/input'; 
+// Label component is being removed
+// import { Label } from '@/components/ui/label'; 
 import { Textarea } from '@/components/ui/textarea';
-import type { Item, BucketType } from '@/types'; // Renamed from ActionItem
+import type { Item, BucketType } from '@/types';
 
-interface AddActionItemModalProps { // Interface name can be kept if it refers to the modal's purpose
+interface AddActionItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (content: string, bucket: BucketType, id?: string) => void;
-  itemToEdit?: Item | null; // Renamed from ActionItem
+  itemToEdit?: Item | null;
   defaultBucket: BucketType;
 }
 
@@ -55,26 +57,21 @@ export function AddActionItemModal({
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{itemToEdit ? 'Edit Item' : 'Add New Item'}</DialogTitle> {/* Changed "Action Item" to "Item" */}
+            <DialogTitle>{itemToEdit ? 'Edit Item' : 'Add New Item'}</DialogTitle>
             <DialogDescription>
-              {itemToEdit ? "Update the details of your item." : `Adding to "${defaultBucket}" bucket. You can change it later.`} {/* Changed "action item" to "item" */}
+              {itemToEdit ? "Update the details of your item." : `Adding to "${defaultBucket}" bucket. You can change it later.`}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="content" className="text-right">
-                Content
-              </Label>
-              <Textarea
-                id="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="col-span-3"
-                placeholder="e.g., Finalize project proposal"
-                required
-                rows={3}
-              />
-            </div>
+          <div className="py-4"> {/* Simplified container for the textarea */}
+            <Textarea
+              id="content" // id can remain for potential future accessibility uses
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="e.g., Finalize project proposal"
+              required
+              rows={2} // Changed from 3 to 2
+              aria-label="Item content" // Added aria-label as the visual label is removed
+            />
           </div>
           <DialogFooter>
             <DialogClose asChild>
@@ -82,7 +79,7 @@ export function AddActionItemModal({
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit">{itemToEdit ? 'Save Changes' : 'Add Item'}</Button> {/* Changed "Add Item" */}
+            <Button type="submit">{itemToEdit ? 'Save Changes' : 'Add Item'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
