@@ -43,7 +43,8 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
           </p>
         </div>
         <DialogFooter className="flex flex-col items-center space-y-3 pt-4">
-          <p className="text-xs text-muted-foreground">
+          {/* "Created by" paragraph is the first child, so it will be on top in flex-col */}
+          <p className="text-sm text-muted-foreground"> {/* Changed to text-sm */}
             Created by <a href="https://avanavo.eu" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Avanavo</a>
           </p>
           <DialogClose asChild>
