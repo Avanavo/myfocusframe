@@ -1,7 +1,2 @@
-import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/googleai';
-
-export const ai = genkit({
-  plugins: [googleAI()],
-  model: 'googleai/gemini-2.0-flash',
-});
+// This file and the src/ai folder can be safely deleted
+// as AI features have been removed from the application.
