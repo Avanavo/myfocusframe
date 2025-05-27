@@ -15,13 +15,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, ShieldAlert, Loader2 } from 'lucide-react';
+import { User, LogOut, ShieldAlert, Loader2, Info } from 'lucide-react'; // Added Info
 import { ConfirmDialog } from './ConfirmDeleteDialog'; 
+import { AboutDialog } from './AboutDialog'; // Added AboutDialog import
 
 export function Header() {
   const { currentUser, signOutUser, forgetUserAccount, loading: authLoading } = useAuth();
   const router = useRouter();
   const [isForgetMeDialogOpen, setIsForgetMeDialogOpen] = useState(false);
+  const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false); // State for About dialog
 
   const handleMyAccount = () => {
     router.push('/account');
@@ -73,11 +75,15 @@ export function Header() {
                     <User className="mr-2 h-4 w-4" />
                     <span>My Account</span>
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setIsAboutDialogOpen(true)}> {/* About menu item */}
+                    <Info className="mr-2 h-4 w-4" />
+                    <span>About</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOutUser}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Sign out</span>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleForgetMe} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
                     <ShieldAlert className="mr-2 h-4 w-4" /> 
                     <span>Forget Me</span>
@@ -96,9 +102,13 @@ export function Header() {
         onClose={() => setIsForgetMeDialogOpen(false)}
         onConfirm={confirmForgetMe}
         title="Are you absolutely sure?"
-        description="This action cannot be undone. All your action items will be permanently deleted, and your account will be removed. This is for GDPR compliance."
+        description="This action cannot be undone. All your items will be permanently deleted, and your account will be removed. This is for GDPR compliance."
         confirmButtonText="Yes, Forget Me"
         confirmButtonVariant="destructive"
+      />
+      <AboutDialog 
+        isOpen={isAboutDialogOpen}
+        onClose={() => setIsAboutDialogOpen(false)}
       />
     </>
   );
