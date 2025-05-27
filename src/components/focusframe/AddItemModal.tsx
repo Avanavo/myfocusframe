@@ -19,7 +19,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import type { Item, BucketType } from '@/types';
 
-interface AddActionItemModalProps {
+interface AddItemModalProps { // Renamed from AddActionItemModalProps
   isOpen: boolean;
   onClose: () => void;
   onSave: (content: string, bucket: BucketType, id?: string) => void;
@@ -27,13 +27,13 @@ interface AddActionItemModalProps {
   defaultBucket: BucketType;
 }
 
-export function AddActionItemModal({
+export function AddItemModal({ // Renamed from AddActionItemModal
   isOpen,
   onClose,
   onSave,
   itemToEdit,
   defaultBucket,
-}: AddActionItemModalProps) {
+}: AddItemModalProps) { // Updated props type
   const [content, setContent] = useState('');
 
   useEffect(() => {
