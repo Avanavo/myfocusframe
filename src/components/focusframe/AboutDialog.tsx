@@ -39,7 +39,7 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
             <li><strong>Acceptance:</strong> Items you cannot change and must accept.</li>
           </ul>
           <p className="pt-2">
-            This approach, often referred to as the CIA (Control, Influence, Acceptance) framework, helps you direct your energy effectively and find peace of mind.
+            This approach, often referred to as the CIA (Control, Influence, Acceptance) framework, helps you direct your energy effectively and find peace of mind. It's a concept widely discussed in personal development and stress management literature.
           </p>
         </div>
         <DialogFooter className="sm:justify-center">
