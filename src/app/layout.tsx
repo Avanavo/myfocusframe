@@ -5,6 +5,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthContext';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,12 +30,15 @@ export const metadata: Metadata = {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
-    apple: '/icons/icon-192x192.png', // Explicitly set apple-touch-icon
+    apple: '/icons/icon-192x192.png',
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: 'hsl(101, 25%, 38%)',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'hsl(101, 25%, 38%)' },
+    { media: '(prefers-color-scheme: dark)', color: 'hsl(98, 20%, 15%)' }, // Example dark theme color
+  ],
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -47,13 +51,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
-          {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && <GoogleAnalytics />}
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && <GoogleAnalytics />}
+            {children}
+            <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

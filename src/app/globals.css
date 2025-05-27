@@ -64,8 +64,8 @@
     --accent: 101 35% 60%; /* Prominent Medium Green for dark mode accent */
     --accent-foreground: 98 27% 10%; /* Very Dark Green text on accent */
     
-    --destructive: 0 62.8% 30.6%; /* Default dark Red */
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 70% 45%; /* Darker Red for dark mode */
+    --destructive-foreground: 0 0% 98%; /* Light text on dark red */
 
     --border: 98 15% 30%; /* Dark green border */
     --input: 98 15% 30%; /* Dark green input */

@@ -8,8 +8,8 @@ import { Header } from '@/components/focusframe/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Loader2, ShieldAlert, Info, X, Brain } from 'lucide-react'; // Added Brain for fun
-import { ConfirmDialog } from '@/components/focusframe/ConfirmDialog'; // Corrected import path
+import { Loader2, ShieldAlert, Info, X, Brain } from 'lucide-react'; 
+import { ConfirmDialog } from '@/components/focusframe/ConfirmDialog';
 import type { Item, BucketType } from '@/types'; 
 import { getItemsStream } from '@/lib/firestoreService'; 
 import { useToast } from '@/hooks/use-toast';
@@ -109,7 +109,7 @@ export default function AccountPage() {
   }
   
   if (!currentUser) {
-     router.push('/');
+     // router.push('/'); // This can cause infinite loops if user is not authenticated and this page is accessed.
      return (
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
@@ -180,13 +180,13 @@ export default function AccountPage() {
                     <div>
                       <p className="text-xs text-muted-foreground">Account Created</p>
                       <p className="text-sm text-foreground">
-                        {new Date(currentUser.metadata.creationTime || Date.now()).toLocaleDateString()}
+                        {currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).toLocaleDateString() : 'N/A'}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Last Sign In</p>
                       <p className="text-sm text-foreground">
-                        {new Date(currentUser.metadata.lastSignInTime || Date.now()).toLocaleDateString()}
+                        {currentUser.metadata.lastSignInTime ? new Date(currentUser.metadata.lastSignInTime).toLocaleDateString() : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -218,3 +218,4 @@ export default function AccountPage() {
     </>
   );
 }
+

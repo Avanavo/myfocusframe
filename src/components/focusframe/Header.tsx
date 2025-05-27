@@ -18,6 +18,7 @@ import {
 import { User, LogOut, ShieldAlert, Loader2, Info } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog'; 
 import { AboutDialog } from './AboutDialog';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Header() {
   const { currentUser, signOutUser, forgetUserAccount, loading: authLoading } = useAuth();
@@ -49,6 +50,7 @@ export function Header() {
             <h1 className="text-2xl font-semibold text-foreground">My FocusFrame</h1>
           </div>
           <div className="flex items-center gap-3">
+             <ThemeToggle />
             {authLoading ? (
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             ) : currentUser ? (
