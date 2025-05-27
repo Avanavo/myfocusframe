@@ -4,14 +4,14 @@
 import { useState, useEffect, type DragEvent } from 'react';
 import { Header } from '@/components/focusframe/Header';
 import { BucketColumn } from '@/components/focusframe/BucketColumn';
-import { AddActionItemModal } from '@/components/focusframe/AddItemModal';
-import { ConfirmDialog } from '@/components/focusframe/ConfirmDialog';
-import type { Item, BucketType } from '@/types'; // Renamed from ActionItem
+import { AddItemModal } from '@/components/focusframe/AddItemModal';
+import { ConfirmDialog } from '@/components/focusframe/ConfirmDialog'; // Corrected import path
+import type { Item, BucketType } from '@/types'; 
 import { 
-  getItemsStream, // Renamed from getActionItemsStream
-  addItem, // Renamed from addActionItem
-  updateItem, // Renamed from updateActionItem
-  deleteItem  // Renamed from deleteActionItem
+  getItemsStream, 
+  addItem, 
+  updateItem, 
+  deleteItem  
 } from '@/lib/firestoreService';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogIn } from 'lucide-react';
@@ -25,13 +25,13 @@ const BUCKET_TITLES: Record<BucketType, string> = {
   acceptance: 'Acceptance',
 };
 
-export default function SphereOfControlPage() {
+export default function FocusFramePage() {
   const { currentUser, loading: authLoading, signInWithGoogle } = useAuth();
-  const [items, setItems] = useState<Item[]>([]); // Renamed from actionItems
+  const [items, setItems] = useState<Item[]>([]); 
   const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState<Item | null>(null); // Renamed from ActionItem
+  const [itemToEdit, setItemToEdit] = useState<Item | null>(null); 
   const [defaultBucketForModal, setDefaultBucketForModal] = useState<BucketType>('control');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDeleteId, setItemToDeleteId] = useState<string | null>(null);
@@ -54,9 +54,9 @@ export default function SphereOfControlPage() {
     }
 
     setIsLoadingItems(true);
-    const unsubscribe = getItemsStream( // Renamed from getActionItemsStream
+    const unsubscribe = getItemsStream( 
       currentUser.uid,
-      (loadedItems) => { // Renamed from items to loadedItems for clarity
+      (loadedItems) => { 
         setItems(loadedItems);
         setIsLoadingItems(false);
       },
@@ -69,19 +69,19 @@ export default function SphereOfControlPage() {
     return () => unsubscribe();
   }, [currentUser, toast]);
 
-  const handleSaveItem = async (content: string, bucket: BucketType, idToUpdate?: string) => { // Renamed from handleAddItem
+  const handleSaveItem = async (content: string, bucket: BucketType, idToUpdate?: string) => { 
     if (!currentUser?.uid) {
       toast({ title: 'Not Signed In', description: 'You must be signed in to add items.', variant: 'destructive' });
       return;
     }
     try {
       if (idToUpdate) { 
-        await updateItem(currentUser.uid, idToUpdate, { content, bucket }); // Renamed from updateActionItem
-        toast({ title: 'Item Updated', description: `"${content.substring(0,30)}..." updated.` });
+        await updateItem(currentUser.uid, idToUpdate, { content, bucket }); 
+        // Success toast for update removed
       } else { 
         const newItemData = { content, bucket };
-        await addItem(currentUser.uid, newItemData); // Renamed from addActionItem
-        toast({ title: 'Item Added', description: `"${content.substring(0,30)}..." added to ${bucket}.` });
+        await addItem(currentUser.uid, newItemData); 
+        // Success toast for add removed
       }
     } catch (error) {
       console.error("Error saving item:", error);
@@ -109,11 +109,11 @@ export default function SphereOfControlPage() {
     e.preventDefault();
     if (!draggedItemId || !currentUser?.uid) return;
 
-    const itemToMove = items.find(item => item.id === draggedItemId); // Using items state
+    const itemToMove = items.find(item => item.id === draggedItemId); 
     if (itemToMove && itemToMove.bucket !== targetBucket) {
       try {
-        await updateItem(currentUser.uid, draggedItemId, { bucket: targetBucket }); // Renamed from updateActionItem
-        toast({ title: 'Item Moved', description: `Item moved to ${targetBucket}.` });
+        await updateItem(currentUser.uid, draggedItemId, { bucket: targetBucket }); 
+        // Success toast for move removed
       } catch (error) {
         console.error("Error moving item:", error);
         toast({ title: 'Error Moving Item', description: 'Could not update item in Firestore.', variant: 'destructive' });
@@ -132,7 +132,7 @@ export default function SphereOfControlPage() {
     setIsModalOpen(true);
   };
   
-  const openEditModal = (item: Item) => { // Renamed from ActionItem
+  const openEditModal = (item: Item) => { 
     if (!currentUser?.uid) return;
     setItemToEdit(item);
     setDefaultBucketForModal(item.bucket);
@@ -148,7 +148,7 @@ export default function SphereOfControlPage() {
   const confirmDeleteItem = async () => {
     if (itemToDeleteId && currentUser?.uid) {
       try {
-        await deleteItem(currentUser.uid, itemToDeleteId); // Renamed from deleteActionItem
+        await deleteItem(currentUser.uid, itemToDeleteId); 
       } catch (error) {
         console.error("Error deleting item:", error);
         toast({ title: 'Error Deleting Item', description: 'Could not delete item from Firestore.', variant: 'destructive' });
@@ -192,7 +192,7 @@ export default function SphereOfControlPage() {
     );
   }
 
-  if (!isClient || (isLoadingItems && items.length === 0 && currentUser)) { // Using items state
+  if (!isClient || (isLoadingItems && items.length === 0 && currentUser)) { 
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
@@ -204,16 +204,16 @@ export default function SphereOfControlPage() {
     );
   }
 
-  const itemNameToDelete = itemToDeleteId ? items.find(i => i.id === itemToDeleteId)?.content.substring(0,30) + "..." : "this item"; // Using items state
+  const itemNameToDelete = itemToDeleteId ? items.find(i => i.id === itemToDeleteId)?.content.substring(0,30) + "..." : "this item"; 
 
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start"> {/* Removed overflow-x-auto */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start"> 
           {BUCKET_TYPES.map(bucketType => {
-            const itemsInBucket = items.filter(item => item.bucket === bucketType); // Using items state
+            const itemsInBucket = items.filter(item => item.bucket === bucketType); 
             return (
               <BucketColumn
                 key={bucketType}
@@ -235,10 +235,10 @@ export default function SphereOfControlPage() {
         </div>
       </main>
 
-      <AddActionItemModal
+      <AddItemModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveItem} // Renamed from handleAddItem
+        onSave={handleSaveItem} 
         itemToEdit={itemToEdit}
         defaultBucket={defaultBucketForModal}
       />
