@@ -42,7 +42,7 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
             This approach, often referred to as the CIA (Control, Influence, Acceptance) framework, helps you direct your energy effectively and find peace of mind. It's a concept widely discussed in personal development and stress management literature.
           </p>
         </div>
-        <DialogFooter className="flex flex-col items-center space-y-3 pt-4 sm:flex-col sm:items-center sm:space-y-3">
+        <DialogFooter className="flex flex-col items-center space-y-4 pt-4">
           {/* This ensures the items are stacked vertically and centered on all screen sizes */}
           <p className="text-sm text-muted-foreground">
             Created by <a href="https://avanavo.eu" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Avanavo</a>
