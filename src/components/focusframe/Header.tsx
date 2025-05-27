@@ -15,15 +15,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, ShieldAlert, Loader2, Info } from 'lucide-react'; // Added Info
+import { User, LogOut, ShieldAlert, Loader2, Info } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDeleteDialog'; 
-import { AboutDialog } from './AboutDialog'; // Added AboutDialog import
+import { AboutDialog } from './AboutDialog';
 
 export function Header() {
   const { currentUser, signOutUser, forgetUserAccount, loading: authLoading } = useAuth();
   const router = useRouter();
   const [isForgetMeDialogOpen, setIsForgetMeDialogOpen] = useState(false);
-  const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false); // State for About dialog
+  const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
 
   const handleMyAccount = () => {
     router.push('/account');
@@ -75,11 +75,6 @@ export function Header() {
                     <User className="mr-2 h-4 w-4" />
                     <span>My Account</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setIsAboutDialogOpen(true)}> {/* About menu item */}
-                    <Info className="mr-2 h-4 w-4" />
-                    <span>About</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOutUser}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Sign out</span>
@@ -87,6 +82,11 @@ export function Header() {
                   <DropdownMenuItem onClick={handleForgetMe} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
                     <ShieldAlert className="mr-2 h-4 w-4" /> 
                     <span>Forget Me</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setIsAboutDialogOpen(true)}>
+                    <Info className="mr-2 h-4 w-4" />
+                    <span>About</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
