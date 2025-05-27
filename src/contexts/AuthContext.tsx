@@ -7,7 +7,7 @@ import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { app } from '@/lib/firebase'; 
 import { useToast } from '@/hooks/use-toast';
-import { deleteAllUserItems } from '@/lib/firestoreService'; // Renamed from deleteAllUserActionItems
+import { deleteAllUserItems } from '@/lib/firestoreService';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      toast({ title: 'Signed In', description: 'Successfully signed in with Google.' });
+      // Success toast for sign-in removed
     } catch (error: any) {
       console.error("Firebase Auth Error:", error);
       
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       await signOut(auth);
-      toast({ title: 'Signed Out', description: 'Successfully signed out.' });
+      // Success toast for sign-out removed
     } catch (error: any) {
       console.error("Error signing out:", error);
       toast({ title: 'Sign Out Error', description: error.message || 'Could not sign out.', variant: 'destructive' });
@@ -96,14 +96,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     setLoading(true);
     const userId = currentUser.uid;
-    // const userDisplayName = currentUser.displayName || 'your'; // No longer needed for success toast
 
     try {
-      await deleteAllUserItems(userId); // Renamed from deleteAllUserActionItems
-      // "Data Deleted" toast removed
+      await deleteAllUserItems(userId);
 
       await currentUser.delete();
-      // "Account Deleted" toast removed
 
     } catch (error: any) {
       console.error("Error during 'Forget Me' process:", error);
