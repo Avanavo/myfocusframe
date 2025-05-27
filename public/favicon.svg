@@ -1,0 +1,11 @@
+<svg
+  width="32"
+  height="32"
+  viewBox="0 0 32 32"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <circle cx="16" cy="16" r="14" stroke="hsl(101, 25%, 38%)" stroke-width="2.5" />
+  <circle cx="16" cy="16" r="8" fill="hsla(101, 25%, 38%, 0.3)" stroke="hsl(101, 25%, 38%)" stroke-width="1.5" />
+  <circle cx="16" cy="16" r="3" fill="hsl(101, 25%, 38%)" />
+</svg>
