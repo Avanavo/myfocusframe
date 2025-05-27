@@ -59,7 +59,7 @@ export function BucketColumn({
   return (
     <Card
       className={cn(
-        "flex flex-col min-w-[300px] max-w-md bg-card/80 backdrop-blur-sm shadow-xl rounded-lg transition-all duration-300 ease-in-out", // Removed flex-1
+        "flex flex-col max-w-md bg-card/80 backdrop-blur-sm shadow-xl rounded-lg transition-all duration-300 ease-in-out", // Removed min-w-[300px]
         isCollapsed ? "h-auto" : "h-[calc(100vh-200px)]"
       )}
       onDragOver={handleDragOver}

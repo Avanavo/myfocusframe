@@ -211,7 +211,7 @@ export default function SphereOfControlPage() {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start overflow-x-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start"> {/* Removed overflow-x-auto */}
           {BUCKET_TYPES.map(bucketType => {
             const itemsInBucket = items.filter(item => item.bucket === bucketType); // Using items state
             return (
