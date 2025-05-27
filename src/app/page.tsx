@@ -147,10 +147,8 @@ export default function SphereOfControlPage() {
 
   const confirmDeleteItem = async () => {
     if (itemToDeleteId && currentUser?.uid) {
-      // const item = items.find(it => it.id === itemToDeleteId); // No longer needed for success toast
       try {
         await deleteItem(currentUser.uid, itemToDeleteId); // Renamed from deleteActionItem
-        // Success toast removed
       } catch (error) {
         console.error("Error deleting item:", error);
         toast({ title: 'Error Deleting Item', description: 'Could not delete item from Firestore.', variant: 'destructive' });
@@ -213,7 +211,7 @@ export default function SphereOfControlPage() {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start overflow-x-auto">
           {BUCKET_TYPES.map(bucketType => {
             const itemsInBucket = items.filter(item => item.bucket === bucketType); // Using items state
             return (
