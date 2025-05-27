@@ -9,9 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Loader2, ShieldAlert, Info, X, Brain } from 'lucide-react'; // Added Brain for fun
-import { ConfirmDialog } from '@/components/focusframe/ConfirmDialog';
-import type { Item, BucketType } from '@/types'; // Renamed from ActionItem
-import { getItemsStream } from '@/lib/firestoreService'; // Renamed from getActionItemsStream
+import { ConfirmDialog } from '@/components/focusframe/ConfirmDeleteDialog'; // Corrected import path
+import type { Item, BucketType } from '@/types'; 
+import { getItemsStream } from '@/lib/firestoreService'; 
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -25,7 +25,7 @@ export default function AccountPage() {
   const { currentUser, loading: authLoading, signOutUser, forgetUserAccount } = useAuth();
   const router = useRouter();
   const [isForgetMeDialogOpen, setIsForgetMeDialogOpen] = useState(false);
-  const [items, setItems] = useState<Item[]>([]); // Renamed from actionItems
+  const [items, setItems] = useState<Item[]>([]); 
   const [isLoadingItems, setIsLoadingItems] = useState(true);
   const { toast } = useToast();
 
@@ -43,9 +43,9 @@ export default function AccountPage() {
     }
 
     setIsLoadingItems(true);
-    const unsubscribe = getItemsStream( // Renamed from getActionItemsStream
+    const unsubscribe = getItemsStream( 
       currentUser.uid,
-      (loadedItems) => { // Renamed for clarity
+      (loadedItems) => { 
         setItems(loadedItems);
         setIsLoadingItems(false);
       },
@@ -79,7 +79,7 @@ export default function AccountPage() {
       acceptance: 0,
     };
 
-    items.forEach(item => { // Using items state
+    items.forEach(item => { 
       if (counts[item.bucket] !== undefined) {
         counts[item.bucket]++;
       }
@@ -94,7 +94,7 @@ export default function AccountPage() {
     if (counts.acceptance === maxCount) return { style: "Master of Zen", explanation: "You often place items in the 'Acceptance' bucket, excelling at letting go of what you can't change.", icon: Brain };
     
     return { style: "Balanced Individual", explanation: "Your items are quite evenly distributed, or you're just getting started! You show a flexible approach.", icon: Brain };
-  }, [items, currentUser, isLoadingItems, authLoading]); // Using items state
+  }, [items, currentUser, isLoadingItems, authLoading]); 
   
 
   if (authLoading || (!currentUser && !authLoading)) {
@@ -211,7 +211,7 @@ export default function AccountPage() {
         onClose={() => setIsForgetMeDialogOpen(false)}
         onConfirm={confirmForgetMe}
         title="Are you absolutely sure?"
-        description="This action cannot be undone. All your items will be permanently deleted, and your account will be removed. This is for GDPR compliance." // Changed "action items" to "items"
+        description="This action cannot be undone. All your items will be permanently deleted, and your account will be removed. This is for GDPR compliance." 
         confirmButtonText="Yes, Forget Me"
         confirmButtonVariant="destructive"
       />
