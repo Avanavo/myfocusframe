@@ -26,6 +26,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  devIndicators: {
+    allowedDevOrigins: [
+      // This domain was provided in a warning from Firebase Studio.
+      // It might need to be updated if your Studio preview URL changes.
+      '9003-firebase-studio-1748256100233.cluster-axf5tvtfjjfekvhwxwkkkzsk2y.cloudworkstations.dev',
+    ],
+  },
 };
 
 export default withPWA(nextConfig);
