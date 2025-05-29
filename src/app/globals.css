@@ -5,77 +5,77 @@
 
 @layer base {
   :root {
-    --background: 43 33% 94%; /* Creamy Beige from Avanavo */
-    --foreground: 98 27% 25%; /* Dark Green from Avanavo */
+    --background: 35 50% 92%; /* Light Warm Beige */
+    --foreground: 30 30% 22%; /* Dark Earthy Brown */
 
-    --card: 0 0% 100%; /* White for cards, for contrast */
-    --card-foreground: 98 27% 25%; /* Dark Green */
+    --card: 35 45% 96%; /* Slightly Off-White/Cream for cards */
+    --card-foreground: 30 30% 22%; /* Dark Earthy Brown */
 
-    --popover: 0 0% 100%; /* White */
-    --popover-foreground: 98 27% 25%; /* Dark Green */
+    --popover: 35 45% 96%; /* Slightly Off-White/Cream */
+    --popover-foreground: 30 30% 22%; /* Dark Earthy Brown */
 
-    --primary: 101 25% 38%; /* Medium Green from Avanavo */
-    --primary-foreground: 43 33% 96%; /* Very Light Cream for text on primary */
+    --primary: 30 45% 48%; /* Muted Terracotta Brown */
+    --primary-foreground: 35 60% 95%; /* Light Cream for text on primary */
 
-    --secondary: 103 27% 70%; /* Light Green from Avanavo */
-    --secondary-foreground: 98 27% 25%; /* Dark Green for text on secondary */
+    --secondary: 40 35% 75%; /* Light Tan/Khaki */
+    --secondary-foreground: 30 30% 22%; /* Dark Earthy Brown for text on secondary */
 
-    --muted: 43 30% 88%; /* Lighter Beige */
-    --muted-foreground: 98 20% 45%; /* Softer Dark Green */
+    --muted: 35 40% 88%; /* Lighter Beige */
+    --muted-foreground: 30 25% 40%; /* Medium Earthy Brown */
 
-    --accent: 98 30% 30%; /* Dark Green (slightly more saturated for accent) */
-    --accent-foreground: 43 33% 96%; /* Very Light Cream for text on accent */
+    --accent: 80 30% 45%; /* Muted Olive Green */
+    --accent-foreground: 35 60% 95%; /* Light Cream for text on accent */
 
-    --destructive: 0 84.2% 60.2%; /* Default Red */
+    --destructive: 0 60% 50%; /* A slightly more muted red */
     --destructive-foreground: 0 0% 98%; /* Default Light */
 
-    --border: 43 25% 85%; /* Beige border */
-    --input: 43 25% 85%; /* Beige input */
-    --ring: 101 25% 38%; /* Medium Green for focus rings */
+    --border: 35 30% 82%; /* Beige/Light Brown border */
+    --input: 35 30% 82%; /* Beige/Light Brown input */
+    --ring: 30 45% 48%; /* Muted Terracotta Brown for focus rings */
     
-    --chart-1: 101 40% 50%;
-    --chart-2: 98 30% 40%;
-    --chart-3: 43 40% 70%; /* Lighter beige/cream for charts */
-    --chart-4: 103 35% 65%;
-    --chart-5: 90 30% 45%;
+    --chart-1: 30 40% 55%; /* Terracotta */
+    --chart-2: 80 25% 50%; /* Olive */
+    --chart-3: 40 30% 65%; /* Tan */
+    --chart-4: 25 35% 60%; /* Lighter Brown */
+    --chart-5: 90 20% 55%; /* Muted Sage */
 
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 98 20% 15%; /* Very Dark Desaturated Green */
-    --foreground: 43 33% 88%; /* Light Beige text */
+    --background: 30 15% 12%; /* Very Dark Brown */
+    --foreground: 35 25% 82%; /* Light Beige text */
 
-    --card: 98 20% 20%; /* Slightly Lighter Dark Green for cards */
-    --card-foreground: 43 33% 88%;
+    --card: 30 15% 18%; /* Slightly Lighter Dark Brown for cards */
+    --card-foreground: 35 25% 82%;
 
-    --popover: 98 20% 20%;
-    --popover-foreground: 43 33% 88%;
+    --popover: 30 15% 18%;
+    --popover-foreground: 35 25% 82%;
 
-    --primary: 101 30% 55%; /* Brighter Medium Green for dark mode primary */
-    --primary-foreground: 98 27% 15%; /* Very Dark Green text on primary */
+    --primary: 30 35% 55%; /* Desaturated Terracotta for dark mode primary */
+    --primary-foreground: 30 15% 15%; /* Very Dark Brown text on primary */
 
-    --secondary: 103 25% 35%; /* Muted Light Green for dark mode secondary */
-    --secondary-foreground: 43 33% 88%; /* Light Beige text on secondary */
+    --secondary: 40 20% 30%; /* Muted Dark Tan for dark mode secondary */
+    --secondary-foreground: 35 25% 82%; /* Light Beige text on secondary */
 
-    --muted: 98 15% 25%; /* Darker muted green */
-    --muted-foreground: 43 25% 70%; /* Lighter beige for muted text */
+    --muted: 30 10% 22%; /* Darker muted brown */
+    --muted-foreground: 35 20% 68%; /* Lighter beige for muted text */
 
-    --accent: 101 35% 60%; /* Prominent Medium Green for dark mode accent */
-    --accent-foreground: 98 27% 10%; /* Very Dark Green text on accent */
+    --accent: 80 20% 50%; /* Muted Olive for dark mode accent */
+    --accent-foreground: 30 10% 10%; /* Very Dark Brown text on accent */
     
-    --destructive: 0 70% 45%; /* Darker Red for dark mode */
+    --destructive: 0 50% 40%; /* Darker, more muted Red for dark mode */
     --destructive-foreground: 0 0% 98%; /* Light text on dark red */
 
-    --border: 98 15% 30%; /* Dark green border */
-    --input: 98 15% 30%; /* Dark green input */
-    --ring: 101 30% 55%; /* Brighter Medium Green ring for dark mode */
+    --border: 30 10% 28%; /* Dark brown border */
+    --input: 30 10% 28%; /* Dark brown input */
+    --ring: 30 35% 55%; /* Desaturated Terracotta ring for dark mode */
 
-    --chart-1: 101 50% 65%;
-    --chart-2: 98 40% 55%;
-    --chart-3: 43 40% 35%; /* Darker beige/cream for dark charts */
-    --chart-4: 103 45% 70%;
-    --chart-5: 90 40% 60%;
+    --chart-1: 30 30% 60%;
+    --chart-2: 80 20% 55%;
+    --chart-3: 40 25% 40%;
+    --chart-4: 25 30% 65%;
+    --chart-5: 90 15% 50%;
   }
 }
 
