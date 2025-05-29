@@ -37,9 +37,9 @@ export default function FocusFramePage() {
   const [itemToDeleteId, setItemToDeleteId] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [collapsedBuckets, setCollapsedBuckets] = useState<Record<BucketType, boolean>>({
-    control: false,
-    influence: false,
-    acceptance: false,
+    control: true, // Collapsed by default
+    influence: true, // Collapsed by default
+    acceptance: true, // Collapsed by default
   });
 
   const { toast } = useToast();
@@ -77,11 +77,9 @@ export default function FocusFramePage() {
     try {
       if (idToUpdate) { 
         await updateItem(currentUser.uid, idToUpdate, { content, bucket }); 
-        // Success toast for update removed
       } else { 
         const newItemData = { content, bucket };
         await addItem(currentUser.uid, newItemData); 
-        // Success toast for add removed
       }
     } catch (error) {
       console.error("Error saving item:", error);
@@ -113,7 +111,6 @@ export default function FocusFramePage() {
     if (itemToMove && itemToMove.bucket !== targetBucket) {
       try {
         await updateItem(currentUser.uid, draggedItemId, { bucket: targetBucket }); 
-        // Success toast for move removed
       } catch (error) {
         console.error("Error moving item:", error);
         toast({ title: 'Error Moving Item', description: 'Could not update item in Firestore.', variant: 'destructive' });
